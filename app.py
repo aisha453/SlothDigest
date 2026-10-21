@@ -37,7 +37,6 @@ def extract_summary(clean: dict, raw_json: dict) -> Tuple[str, str]:
     """Extracts summary line 1 and line 2 from any possible LLM output structure."""
     s1, s2 = None, None
 
-    # 1. Check direct keys in normalized dict
     for k in ["summaryline1", "summary1", "line1", "facts", "thefacts", "whathappened"]:
         if clean.get(k) and isinstance(clean[k], str):
             s1 = clean[k]
@@ -47,7 +46,6 @@ def extract_summary(clean: dict, raw_json: dict) -> Tuple[str, str]:
             s2 = clean[k]
             break
 
-    # 2. Check for two_line_summary / summary / tldr container
     val = clean.get("twolinesummary") or clean.get("summary") or clean.get("tldr")
     if val is None:
         for rk, rv in raw_json.items():
@@ -81,13 +79,12 @@ def extract_summary(clean: dict, raw_json: dict) -> Tuple[str, str]:
 
 
 def parse_sloth_result(raw_json: dict) -> SlothDigestResult:
-    """Bulletproof parser that maps any casing and guarantees valid, clean SlothDigestResult."""
+    """Bulletproof parser that maps any casing and guarantees valid SlothDigestResult."""
     clean = {}
     for k, v in raw_json.items():
         norm_k = re.sub(r"[^a-zA-Z0-9]", "", str(k)).lower()
         clean[norm_k] = v
 
-    # 1. Urgency Level
     urg = str(clean.get("urgencylevel") or clean.get("urgency") or "GREEN").upper()
     if "RED" in urg:
         urgency_level = "RED"
@@ -96,7 +93,6 @@ def parse_sloth_result(raw_json: dict) -> SlothDigestResult:
     else:
         urgency_level = "GREEN"
 
-    # 2. Urgency Title
     default_titles = {
         "GREEN": "Safe to Hibernate 🦥",
         "YELLOW": "Skim When Bored 🥱",
@@ -104,7 +100,6 @@ def parse_sloth_result(raw_json: dict) -> SlothDigestResult:
     }
     urgency_title = clean.get("urgencytitle") or clean.get("title") or default_titles[urgency_level]
 
-    # 3. Urgency Verdict
     urgency_verdict = (
         clean.get("urgencyverdict")
         or clean.get("verdict")
@@ -112,17 +107,14 @@ def parse_sloth_result(raw_json: dict) -> SlothDigestResult:
         or "No immediate action required. You can safely conserve your energy."
     )
 
-    # 4. Energy Saved
     energy_saved = (
         clean.get("energysaved")
         or clean.get("timesaved")
-        or "Saved: ~15 mins of reading & mental fatigue"
+        or "Saved: ~18 mins & 52 calories"
     )
 
-    # 5. Extract Summary Lines
     s1, s2 = extract_summary(clean, raw_json)
 
-    # 6. Sloth Take
     sloth_take = (
         clean.get("slothtake")
         or clean.get("take")
@@ -131,7 +123,6 @@ def parse_sloth_result(raw_json: dict) -> SlothDigestResult:
         or "Humans spend remarkable energy debating things that resolve on their own."
     )
 
-    # 7. Canned Replies
     raw_replies = (
         clean.get("cannedreplies")
         or clean.get("replies")
@@ -310,130 +301,239 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Custom Styling for Sloth Vibe (Works seamlessly in Dark and Light mode)
-st.markdown(
-    """
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;600;700&display=swap');
-    
-    html, body, [class*="css"] {
-        font-family: 'Nunito', sans-serif;
-    }
-    
-    .sloth-header {
-        font-family: 'Fredoka', cursive;
-        font-size: 2.4rem;
-        margin-bottom: 0px;
-    }
-    
-    .sloth-subtitle {
-        font-size: 1.05rem;
-        opacity: 0.85;
-        margin-bottom: 20px;
-    }
-    
-    .traffic-card {
-        padding: 18px 24px;
-        border-radius: 14px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
-    
-    .card-green {
-        background-color: rgba(16, 185, 129, 0.15);
-        border-left: 6px solid #10b981;
-    }
-    
-    .card-yellow {
-        background-color: rgba(245, 158, 11, 0.15);
-        border-left: 6px solid #f59e0b;
-    }
-    
-    .card-red {
-        background-color: rgba(239, 68, 68, 0.15);
-        border-left: 6px solid #ef4444;
-    }
-    
-    .summary-card {
-        background: rgba(148, 163, 184, 0.08);
-        border: 1px solid rgba(148, 163, 184, 0.25);
-        border-radius: 12px;
-        padding: 20px 24px;
-        margin-bottom: 20px;
-    }
-    
-    .fact-tag {
-        background: #2563eb;
-        color: white !important;
-        padding: 3px 9px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        margin-right: 8px;
-        display: inline-block;
-    }
-    
-    .outcome-tag {
-        background: #059669;
-        color: white !important;
-        padding: 3px 9px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        margin-right: 8px;
-        display: inline-block;
-    }
-    
-    .sloth-quote {
-        background: rgba(217, 119, 6, 0.1);
-        border-left: 4px solid #d97706;
-        padding: 14px 18px;
-        border-radius: 0 10px 10px 0;
-        font-style: italic;
-        margin-bottom: 20px;
-    }
-    
-    .reply-card {
-        background: rgba(148, 163, 184, 0.08);
-        border: 1px solid rgba(148, 163, 184, 0.25);
-        border-radius: 12px;
-        padding: 16px;
-        height: 100%;
-    }
-    
-    .energy-metric {
-        display: inline-block;
-        background: rgba(148, 163, 184, 0.15);
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.9rem;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
 # Initialize Session State
 if "chat_input" not in st.session_state:
     st.session_state.chat_input = ""
 if "digest_result" not in st.session_state:
     st.session_state.digest_result = None
+if "is_night_mode" not in st.session_state:
+    st.session_state.is_night_mode = True
+
+# Top Navigation Bar with Day / Night Theme Switch
+col_header_left, col_header_right = st.columns([3.8, 1.2])
+
+with col_header_right:
+    theme_selection = st.radio(
+        "Theme Mode",
+        ["🌙 Night Canopy", "☀️ Day Hammock"],
+        index=0 if st.session_state.is_night_mode else 1,
+        horizontal=True,
+        label_visibility="collapsed",
+    )
+    st.session_state.is_night_mode = "Night" in theme_selection
+
+is_night = st.session_state.is_night_mode
+
+# Dynamic Theme Colors
+if is_night:
+    bg_gradient = "linear-gradient(180deg, #0b1120 0%, #0f172a 100%)"
+    app_bg = "#0b1120"
+    text_color = "#f8fafc"
+    subtext_color = "#94a3b8"
+    card_bg = "rgba(30, 41, 59, 0.75)"
+    card_border = "rgba(148, 163, 184, 0.18)"
+    quote_bg = "rgba(217, 119, 6, 0.12)"
+    quote_border = "#f59e0b"
+    metric_bg = "rgba(51, 65, 85, 0.8)"
+    metric_text = "#e2e8f0"
+    sidebar_bg = "#0f172a"
+    hero_title_color = "#38bdf8"
+else:
+    bg_gradient = "linear-gradient(180deg, #fbf8f3 0%, #f4ede2 100%)"
+    app_bg = "#fbf8f3"
+    text_color = "#1e293b"
+    subtext_color = "#64748b"
+    card_bg = "#ffffff"
+    card_border = "#e2d9cd"
+    quote_bg = "rgba(245, 158, 11, 0.12)"
+    quote_border = "#d97706"
+    metric_bg = "#ece5da"
+    metric_text = "#334155"
+    sidebar_bg = "#f5eee4"
+    hero_title_color = "#2d5a43"
+
+# Inject Dynamic CSS Styling
+st.markdown(
+    f"""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    
+    .stApp {{
+        background: {bg_gradient} !important;
+        color: {text_color} !important;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }}
+    
+    [data-testid="stSidebar"] {{
+        background-color: {sidebar_bg} !important;
+    }}
+    
+    .sloth-header {{
+        font-family: 'Fredoka', cursive;
+        font-size: 2.7rem;
+        color: {hero_title_color};
+        margin-bottom: 2px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }}
+    
+    .sloth-subtitle {{
+        font-size: 1.1rem;
+        color: {subtext_color};
+        margin-bottom: 24px;
+        line-height: 1.5;
+    }}
+    
+    .traffic-card {{
+        padding: 22px 26px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        transition: transform 0.2s ease;
+    }}
+    
+    .traffic-card:hover {{
+        transform: translateY(-2px);
+    }}
+    
+    .card-green {{
+        background: rgba(16, 185, 129, 0.16);
+        border: 1px solid rgba(16, 185, 129, 0.35);
+        border-left: 8px solid #10b981;
+    }}
+    
+    .card-yellow {{
+        background: rgba(245, 158, 11, 0.16);
+        border: 1px solid rgba(245, 158, 11, 0.35);
+        border-left: 8px solid #f59e0b;
+    }}
+    
+    .card-red {{
+        background: rgba(239, 68, 68, 0.16);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        border-left: 8px solid #ef4444;
+    }}
+    
+    .summary-card {{
+        background: {card_bg};
+        border: 1px solid {card_border};
+        border-radius: 16px;
+        padding: 24px 28px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }}
+    
+    .fact-tag {{
+        background: #2563eb;
+        color: #ffffff !important;
+        padding: 4px 11px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-right: 10px;
+        display: inline-block;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    }}
+    
+    .outcome-tag {{
+        background: #059669;
+        color: #ffffff !important;
+        padding: 4px 11px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-right: 10px;
+        display: inline-block;
+        box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+    }}
+    
+    .sloth-quote {{
+        background: {quote_bg};
+        border-left: 5px solid {quote_border};
+        padding: 16px 20px;
+        border-radius: 0 14px 14px 0;
+        font-style: italic;
+        margin-bottom: 24px;
+        color: {text_color};
+        line-height: 1.6;
+    }}
+    
+    .reply-card {{
+        background: {card_bg};
+        border: 1px solid {card_border};
+        border-radius: 14px;
+        padding: 18px;
+        height: 100%;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }}
+    
+    .reply-card:hover {{
+        border-color: #3b82f6;
+        transform: translateY(-2px);
+    }}
+    
+    .energy-metric {{
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: {metric_bg};
+        color: {metric_text};
+        padding: 7px 16px;
+        border-radius: 30px;
+        font-weight: 700;
+        font-size: 0.92rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }}
+    
+    .mascot-box {{
+        background: {card_bg};
+        border: 1px solid {card_border};
+        padding: 20px;
+        border-radius: 16px;
+        text-align: center;
+        margin-bottom: 18px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }}
+    
+    .status-dot {{
+        height: 10px;
+        width: 10px;
+        background-color: #10b981;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 6px;
+        animation: pulse 2s infinite;
+    }}
+    
+    @keyframes pulse {{
+        0% {{ transform: scale(0.95); opacity: 0.8; }}
+        50% {{ transform: scale(1.15); opacity: 1; }}
+        100% {{ transform: scale(0.95); opacity: 0.8; }}
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 # Sidebar - Settings & Model Control
 with st.sidebar:
     st.markdown(
-        """
-        <div style="background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%); padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 15px;">
-            <span style="font-size: 3.5rem;">🦥</span>
-            <p style="margin: 8px 0 0 0; font-weight: 700; color: #1e293b; font-size: 1rem;">Sloan the Sloth</p>
-            <p style="margin: 0; color: #64748b; font-size: 0.8rem;">Chief Energy Conservation Officer</p>
+        f"""
+        <div class="mascot-box">
+            <span style="font-size: 3.6rem;">🦥</span>
+            <h3 style="margin: 8px 0 2px 0; font-family: 'Fredoka', cursive; font-size: 1.3rem;">Sloan the Sloth</h3>
+            <p style="margin: 0; color: {subtext_color}; font-size: 0.85rem;"><span class="status-dot"></span>Conserving Energy</p>
         </div>
         """,
         unsafe_allow_html=True,
     )
-    st.markdown("### 🦥 Sloth Settings")
-    st.caption("Powered by Open-Source AI. Conserve human energy.")
+    st.markdown("### ⚙️ Sloth Settings")
+    st.caption("Open-weight intelligence on demand.")
 
     provider = st.selectbox(
         "AI Provider",
@@ -470,22 +570,23 @@ with st.sidebar:
     with st.expander("🌱 Why Open Weights Matter"):
         st.markdown(
             """
-            - **Privacy First**: Group chats and work messages contain sensitive private chats. Open-weight models (via Groq or local Ollama) guarantee your data isn't harvested for proprietary AI training.
+            - **Privacy First**: Group chats and work messages contain sensitive private chats. Open-weight models guarantee your data isn't harvested for proprietary AI training.
             - **Zero Cost Forever**: Runs entirely on Groq's generous free tier or free local hardware.
             - **Portability**: Switching from cloud to 100% offline air-gapped local inference requires 0 code changes.
             """
         )
 
-# Main Application Area
-st.markdown('<h1 class="sloth-header">🦥 SlothDigest</h1>', unsafe_allow_html=True)
-st.markdown(
-    '<p class="sloth-subtitle">For International Sloth Day: Conserve your energy. Turn noisy group chats into a 2-line summary and copy-paste ready replies.</p>',
-    unsafe_allow_html=True,
-)
+# Main Application Area Header
+with col_header_left:
+    st.markdown('<div class="sloth-header">🦥 SlothDigest</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="sloth-subtitle">Channel your inner sloth. Let open-weight AI digest noisy group chats into a 2-line summary and 1-click canned replies.</div>',
+        unsafe_allow_html=True,
+    )
 
-# Preset Quick-Load Buttons
-st.markdown("**Too lazy to type? Test with one-click presets:**")
-col_p1, col_p2, col_p3, col_clear = st.columns([1.2, 1.3, 1.3, 0.8])
+# Preset Quick-Load Buttons with polished styling
+st.markdown("**⚡ Too lazy to type? Test with 1-click scenario presets:**")
+col_p1, col_p2, col_p3, col_clear = st.columns([1.3, 1.4, 1.4, 0.7])
 
 with col_p1:
     if st.button("🍕 47-Msg Dinner Debate", use_container_width=True):
@@ -498,7 +599,7 @@ with col_p2:
         st.session_state.digest_result = None
 
 with col_p3:
-    if st.button("🏡 Neighborhood HOA Drama", use_container_width=True):
+    if st.button("🏡 Lawn Gnome HOA War", use_container_width=True):
         st.session_state.chat_input = SAMPLE_PRESETS["🏡 Neighborhood HOA Lawn Gnome War (Yellow - Petty Drama)"]["text"]
         st.session_state.digest_result = None
 
@@ -511,12 +612,12 @@ with col_clear:
 chat_text = st.text_area(
     "Paste your group chat, email thread, or Slack channel dump here:",
     value=st.session_state.chat_input,
-    height=200,
+    height=210,
     placeholder="e.g. [5:30 PM] Bob: Hey team, did anyone see the ticket? [5:32 PM] Alice: Looking into it...",
 )
 
 # Action Button
-col_btn, col_info = st.columns([1, 2])
+col_btn, col_info = st.columns([1.2, 2])
 with col_btn:
     analyze_clicked = st.button("🦥 Hibernate & Digest Messages", type="primary", use_container_width=True)
 
@@ -558,12 +659,12 @@ if res:
     st.markdown(
         f"""
         <div class="traffic-card {card_class}">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <div>
-                    <h3 style="margin: 0; font-size: 1.4rem;">{badge_icon} {res.urgency_title}</h3>
-                    <p style="margin: 8px 0 0 0; font-size: 1.05rem;">{res.urgency_verdict}</p>
+                    <h3 style="margin: 0; font-size: 1.45rem; font-family: 'Fredoka', cursive;">{badge_icon} {res.urgency_title}</h3>
+                    <p style="margin: 8px 0 0 0; font-size: 1.08rem; line-height: 1.4;">{res.urgency_verdict}</p>
                 </div>
-                <div style="margin-top: 8px;">
+                <div>
                     <span class="energy-metric">⚡ {res.energy_saved}</span>
                 </div>
             </div>
@@ -572,15 +673,15 @@ if res:
         unsafe_allow_html=True,
     )
 
-    # 2. The 2-Line Sleepy Summary (Clean, dark-mode & light-mode responsive)
+    # 2. The 2-Line Sleepy Summary
     st.markdown("### 📋 The 2-Line Sleepy Summary")
     st.markdown(
         f"""
         <div class="summary-card">
-            <p style="margin: 0 0 12px 0; font-size: 1.1rem; line-height: 1.5;">
+            <p style="margin: 0 0 16px 0; font-size: 1.12rem; line-height: 1.6;">
                 <span class="fact-tag">THE FACTS</span> {res.summary_line_1}
             </p>
-            <p style="margin: 0; font-size: 1.1rem; line-height: 1.5;">
+            <p style="margin: 0; font-size: 1.12rem; line-height: 1.6;">
                 <span class="outcome-tag">THE CONSENSUS</span> {res.summary_line_2}
             </p>
         </div>
@@ -592,7 +693,7 @@ if res:
     st.markdown(
         f"""
         <div class="sloth-quote">
-            <strong>🦥 Sloan's Reflection:</strong> "{res.sloth_take}"
+            <strong>🍃 Sloan's Reflection:</strong> "{res.sloth_take}"
         </div>
         """,
         unsafe_allow_html=True,
@@ -600,7 +701,7 @@ if res:
 
     # 4. 1-Click Lazy Canned Replies
     st.markdown("### 💤 1-Click Zero-Effort Replies")
-    st.caption("Click the copy button on the top right of any code card to send without typing a word:")
+    st.caption("Click the copy button on the top right of any card to send without typing a word:")
 
     cols = st.columns(len(res.canned_replies))
     for idx, (col, reply) in enumerate(zip(cols, res.canned_replies)):
@@ -608,8 +709,8 @@ if res:
             st.markdown(
                 f"""
                 <div class="reply-card">
-                    <h4 style="margin: 0 0 4px 0;">{reply.title}</h4>
-                    <p style="font-size: 0.85rem; opacity: 0.75; margin-bottom: 12px;">{reply.vibe}</p>
+                    <h4 style="margin: 0 0 4px 0; font-size: 1.05rem;">{reply.title}</h4>
+                    <p style="font-size: 0.85rem; color: {subtext_color}; margin-bottom: 12px;">{reply.vibe}</p>
                 </div>
                 """,
                 unsafe_allow_html=True,
