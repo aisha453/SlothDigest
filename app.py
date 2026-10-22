@@ -329,10 +329,11 @@ if not is_night:
     header[data-testid="stHeader"] {
         background: #ffffff !important;
         border-bottom: 1px solid #e2e8f0 !important;
+        z-index: 9999 !important;
     }
     
     /* Hide Deploy Button & Streamlit Footer */
-    .stDeployButton, [data-testid="stDeployButton"], div[class*="stDeployButton"] {
+    .stDeployButton, [data-testid="stDeployButton"], div[class*="stDeployButton"], div[data-testid="stDecoration"] {
         display: none !important;
         visibility: hidden !important;
     }
@@ -440,32 +441,69 @@ if not is_night:
         line-height: 1.5 !important;
     }
     
-    /* Day Mode Segmented Control Switcher Pinned to Top Right Corner */
-    [data-testid="stSegmentedControl"] {
+    /* Day Mode Theme Toggle Switcher Pinned to Absolute Top Right Corner */
+    [data-testid="stElementContainer"]:has([data-testid="stButtonGroup"]),
+    [data-testid="stElementContainer"]:has([data-testid="stSegmentedControl"]),
+    [data-testid="stElementContainer"]:has(.stButtonGroup),
+    div[data-testid="stButtonGroup"],
+    .stButtonGroup,
+    div[data-testid="stSegmentedControl"] {
         position: fixed !important;
-        top: 14px !important;
-        right: 28px !important;
-        z-index: 999999 !important;
+        top: 10px !important;
+        right: 18px !important;
+        z-index: 9999999 !important;
+        width: fit-content !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    div[data-testid="stButtonGroup"],
+    .stButtonGroup,
+    div[data-testid="stSegmentedControl"] {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
         background-color: #ffffff !important;
         border: 1.5px solid #cbd5e1 !important;
         border-radius: 9999px !important;
-        padding: 3px !important;
+        padding: 2px !important;
         box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
-        width: fit-content !important;
+        gap: 2px !important;
     }
     
-    [data-testid="stSegmentedControl"] button {
-        font-size: 1.25rem !important;
+    div[data-testid="stButtonGroup"] button,
+    .stButtonGroup button,
+    div[data-testid="stSegmentedControl"] button {
+        font-size: 1.2rem !important;
         border-radius: 9999px !important;
         border: none !important;
         padding: 4px 14px !important;
         background: transparent !important;
         cursor: pointer !important;
+        line-height: 1 !important;
+        min-height: 32px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.15s ease !important;
     }
     
-    [data-testid="stSegmentedControl"] button[aria-selected="true"] {
+    div[data-testid="stButtonGroup"] button[aria-selected="true"],
+    div[data-testid="stButtonGroup"] button[data-selected="true"],
+    div[data-testid="stButtonGroup"] button[aria-checked="true"],
+    .stButtonGroup button[aria-selected="true"],
+    .stButtonGroup button[data-selected="true"],
+    .stButtonGroup button[aria-checked="true"],
+    div[data-testid="stSegmentedControl"] button[aria-selected="true"],
+    div[data-testid="stSegmentedControl"] button[data-selected="true"] {
         background-color: #059669 !important;
-        box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3) !important;
+        color: #ffffff !important;
+        box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35) !important;
+    }
+
+    div[data-testid="stButtonGroup"] button:not([aria-selected="true"]):not([data-selected="true"]):hover,
+    .stButtonGroup button:not([aria-selected="true"]):not([data-selected="true"]):hover {
+        background-color: #f1f5f9 !important;
     }
     
     /* Preset Buttons in Day Mode (Clean White Cards, NOT Black!) */
@@ -671,10 +709,11 @@ else:
     header[data-testid="stHeader"] {
         background: #0b1120 !important;
         border-bottom: 1px solid #1e293b !important;
+        z-index: 9999 !important;
     }
     
     /* Hide Deploy Button & Streamlit Footer */
-    .stDeployButton, [data-testid="stDeployButton"], div[class*="stDeployButton"] {
+    .stDeployButton, [data-testid="stDeployButton"], div[class*="stDeployButton"], div[data-testid="stDecoration"] {
         display: none !important;
         visibility: hidden !important;
     }
@@ -776,32 +815,69 @@ else:
         line-height: 1.5 !important;
     }
     
-    /* Night Mode Segmented Control Switcher Pinned to Top Right Corner */
-    [data-testid="stSegmentedControl"] {
+    /* Night Mode Theme Toggle Switcher Pinned to Absolute Top Right Corner */
+    [data-testid="stElementContainer"]:has([data-testid="stButtonGroup"]),
+    [data-testid="stElementContainer"]:has([data-testid="stSegmentedControl"]),
+    [data-testid="stElementContainer"]:has(.stButtonGroup),
+    div[data-testid="stButtonGroup"],
+    .stButtonGroup,
+    div[data-testid="stSegmentedControl"] {
         position: fixed !important;
-        top: 14px !important;
-        right: 28px !important;
-        z-index: 999999 !important;
+        top: 10px !important;
+        right: 18px !important;
+        z-index: 9999999 !important;
+        width: fit-content !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    div[data-testid="stButtonGroup"],
+    .stButtonGroup,
+    div[data-testid="stSegmentedControl"] {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
         background-color: #1e293b !important;
         border: 1.5px solid #334155 !important;
         border-radius: 9999px !important;
-        padding: 3px !important;
+        padding: 2px !important;
         box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
-        width: fit-content !important;
+        gap: 2px !important;
     }
     
-    [data-testid="stSegmentedControl"] button {
-        font-size: 1.25rem !important;
+    div[data-testid="stButtonGroup"] button,
+    .stButtonGroup button,
+    div[data-testid="stSegmentedControl"] button {
+        font-size: 1.2rem !important;
         border-radius: 9999px !important;
         border: none !important;
         padding: 4px 14px !important;
         background: transparent !important;
         cursor: pointer !important;
+        line-height: 1 !important;
+        min-height: 32px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.15s ease !important;
     }
     
-    [data-testid="stSegmentedControl"] button[aria-selected="true"] {
+    div[data-testid="stButtonGroup"] button[aria-selected="true"],
+    div[data-testid="stButtonGroup"] button[data-selected="true"],
+    div[data-testid="stButtonGroup"] button[aria-checked="true"],
+    .stButtonGroup button[aria-selected="true"],
+    .stButtonGroup button[data-selected="true"],
+    .stButtonGroup button[aria-checked="true"],
+    div[data-testid="stSegmentedControl"] button[aria-selected="true"],
+    div[data-testid="stSegmentedControl"] button[data-selected="true"] {
         background-color: #38bdf8 !important;
+        color: #ffffff !important;
         box-shadow: 0 2px 8px rgba(56, 189, 248, 0.4) !important;
+    }
+
+    div[data-testid="stButtonGroup"] button:not([aria-selected="true"]):not([data-selected="true"]):hover,
+    .stButtonGroup button:not([aria-selected="true"]):not([data-selected="true"]):hover {
+        background-color: #334155 !important;
     }
     
     [data-testid="stHorizontalBlock"] button {
@@ -982,6 +1058,19 @@ else:
 
 st.markdown(theme_css, unsafe_allow_html=True)
 
+# Theme Toggle Switcher (Pinned to top-right corner via CSS)
+theme_selection = st.segmented_control(
+    "Theme",
+    options=["☀️", "🌙"],
+    default=st.session_state.theme_mode,
+    key="theme_mode_control",
+    label_visibility="collapsed",
+    help="Switch between Day ☀️ and Night 🌙 mode",
+)
+if theme_selection and theme_selection != st.session_state.theme_mode:
+    st.session_state.theme_mode = theme_selection
+    st.rerun()
+
 # Sidebar - Settings & Model Control
 with st.sidebar:
     st.markdown(
@@ -1044,19 +1133,6 @@ st.markdown(
     '<div class="sloth-subtitle">Channel your inner sloth. Let open-weight AI digest noisy group chats into a 2-line summary and 1-click canned replies.</div>',
     unsafe_allow_html=True,
 )
-
-# Theme Toggle Switcher (Pinned to top-right corner via CSS)
-theme_selection = st.segmented_control(
-    "Theme",
-    options=["☀️", "🌙"],
-    default=st.session_state.theme_mode,
-    key="theme_mode_control",
-    label_visibility="collapsed",
-    help="Switch between Day ☀️ and Night 🌙 mode",
-)
-if theme_selection and theme_selection != st.session_state.theme_mode:
-    st.session_state.theme_mode = theme_selection
-    st.rerun()
 
 # Preset Quick-Load Buttons with polished styling
 st.markdown("**⚡ Too lazy to type? Test with 1-click scenario presets:**")
