@@ -307,16 +307,16 @@ if "chat_input" not in st.session_state:
 if "digest_result" not in st.session_state:
     st.session_state.digest_result = None
 if "is_night_mode" not in st.session_state:
-    st.session_state.is_night_mode = True
+    st.session_state.is_night_mode = False
 
 # Top Navigation Bar with Day / Night Theme Switch
-col_header_left, col_header_right = st.columns([3.8, 1.2])
+col_header_left, col_header_right = st.columns([3.6, 1.4])
 
 with col_header_right:
     theme_selection = st.radio(
         "Theme Mode",
-        ["🌙 Night Canopy", "☀️ Day Hammock"],
-        index=0 if st.session_state.is_night_mode else 1,
+        ["☀️ Day Mode", "🌙 Night Mode"],
+        index=0 if not st.session_state.is_night_mode else 1,
         horizontal=True,
         label_visibility="collapsed",
     )
@@ -324,210 +324,638 @@ with col_header_right:
 
 is_night = st.session_state.is_night_mode
 
-# Dynamic Theme Colors
-if is_night:
-    bg_gradient = "linear-gradient(180deg, #0b1120 0%, #0f172a 100%)"
-    app_bg = "#0b1120"
-    text_color = "#f8fafc"
-    subtext_color = "#94a3b8"
-    card_bg = "rgba(30, 41, 59, 0.75)"
-    card_border = "rgba(148, 163, 184, 0.18)"
-    quote_bg = "rgba(217, 119, 6, 0.12)"
-    quote_border = "#f59e0b"
-    metric_bg = "rgba(51, 65, 85, 0.8)"
-    metric_text = "#e2e8f0"
-    sidebar_bg = "#0f172a"
-    hero_title_color = "#38bdf8"
-else:
-    bg_gradient = "linear-gradient(180deg, #fbf8f3 0%, #f4ede2 100%)"
-    app_bg = "#fbf8f3"
-    text_color = "#1e293b"
-    subtext_color = "#64748b"
-    card_bg = "#ffffff"
-    card_border = "#e2d9cd"
-    quote_bg = "rgba(245, 158, 11, 0.12)"
-    quote_border = "#d97706"
-    metric_bg = "#ece5da"
-    metric_text = "#334155"
-    sidebar_bg = "#f5eee4"
-    hero_title_color = "#2d5a43"
-
-# Inject Dynamic CSS Styling
-st.markdown(
-    f"""
+# Inject Powerful, Comprehensive CSS Overrides for 100% Crisp Visibility
+if not is_night:
+    # ------------------ DAY MODE (Clean, Crisp, High-Contrast) ------------------
+    theme_css = """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
-    .stApp {{
-        background: {bg_gradient} !important;
-        color: {text_color} !important;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-    }}
+    /* Global App Background & Base Font */
+    html, body, .stApp {
+        background-color: #f8fafc !important;
+        color: #0f172a !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
     
-    [data-testid="stSidebar"] {{
-        background-color: {sidebar_bg} !important;
-    }}
+    /* Remove Black Top Header */
+    header[data-testid="stHeader"] {
+        background: #ffffff !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+    }
     
-    .sloth-header {{
-        font-family: 'Fredoka', cursive;
-        font-size: 2.7rem;
-        color: {hero_title_color};
-        margin-bottom: 2px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }}
+    /* Ensure ALL text elements in main page are crisp and dark */
+    .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6 {
+        color: #0f172a !important;
+        font-family: 'Fredoka', cursive !important;
+    }
     
-    .sloth-subtitle {{
-        font-size: 1.1rem;
-        color: {subtext_color};
-        margin-bottom: 24px;
-        line-height: 1.5;
-    }}
+    .stApp p, .stApp span, .stApp div, .stApp label, [data-testid="stMarkdownContainer"] p {
+        color: #1e293b !important;
+    }
     
-    .traffic-card {{
-        padding: 22px 26px;
-        border-radius: 16px;
-        margin-bottom: 24px;
-        backdrop-filter: blur(8px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-        transition: transform 0.2s ease;
-    }}
+    /* Sidebar Overrides for Day Mode */
+    [data-testid="stSidebar"] {
+        background-color: #ffffff !important;
+        border-right: 1.5px solid #e2e8f0 !important;
+    }
     
-    .traffic-card:hover {{
-        transform: translateY(-2px);
-    }}
+    [data-testid="stSidebar"] * {
+        color: #0f172a !important;
+    }
     
-    .card-green {{
-        background: rgba(16, 185, 129, 0.16);
-        border: 1px solid rgba(16, 185, 129, 0.35);
-        border-left: 8px solid #10b981;
-    }}
+    [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] caption {
+        color: #475569 !important;
+    }
     
-    .card-yellow {{
-        background: rgba(245, 158, 11, 0.16);
-        border: 1px solid rgba(245, 158, 11, 0.35);
-        border-left: 8px solid #f59e0b;
-    }}
+    [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p {
+        color: #0f172a !important;
+        font-weight: 700 !important;
+        font-size: 0.95rem !important;
+    }
     
-    .card-red {{
-        background: rgba(239, 68, 68, 0.16);
-        border: 1px solid rgba(239, 68, 68, 0.35);
-        border-left: 8px solid #ef4444;
-    }}
+    /* Mascot Box in Sidebar */
+    .mascot-box {
+        background: #f1f5f9 !important;
+        border: 1.5px solid #cbd5e1 !important;
+        padding: 20px !important;
+        border-radius: 16px !important;
+        text-align: center !important;
+        margin-bottom: 20px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+    }
     
-    .summary-card {{
-        background: {card_bg};
-        border: 1px solid {card_border};
-        border-radius: 16px;
-        padding: 24px 28px;
-        margin-bottom: 24px;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-    }}
+    .mascot-box h3 {
+        color: #0f172a !important;
+        margin: 8px 0 2px 0 !important;
+        font-size: 1.35rem !important;
+    }
     
-    .fact-tag {{
-        background: #2563eb;
+    .mascot-box p {
+        color: #475569 !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Sidebar Inputs & Dropdowns */
+    [data-testid="stSidebar"] input[type="text"], 
+    [data-testid="stSidebar"] input[type="password"] {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 1.5px solid #cbd5e1 !important;
+        border-radius: 10px !important;
+    }
+    
+    [data-testid="stSidebar"] div[data-baseweb="select"] > div {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 1.5px solid #cbd5e1 !important;
+        border-radius: 10px !important;
+    }
+    
+    [data-testid="stSidebar"] div[data-baseweb="select"] * {
+        color: #0f172a !important;
+    }
+    
+    /* Sidebar Expander */
+    [data-testid="stSidebar"] .stExpander {
+        background-color: #f8fafc !important;
+        border: 1.5px solid #e2e8f0 !important;
+        border-radius: 10px !important;
+    }
+    
+    [data-testid="stSidebar"] .stExpander * {
+        color: #334155 !important;
+    }
+    
+    /* Header & Subtitle */
+    .sloth-header {
+        font-family: 'Fredoka', cursive !important;
+        font-size: 2.8rem !important;
+        color: #047857 !important;
+        margin-bottom: 4px !important;
+    }
+    
+    .sloth-subtitle {
+        font-size: 1.15rem !important;
+        color: #334155 !important;
+        margin-bottom: 24px !important;
+        font-weight: 500 !important;
+        line-height: 1.5 !important;
+    }
+    
+    /* Day Mode Radio Switcher Pill */
+    [data-testid="stRadio"] > div {
+        background-color: #ffffff !important;
+        padding: 6px 14px !important;
+        border-radius: 30px !important;
+        border: 1.5px solid #cbd5e1 !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    }
+    
+    [data-testid="stRadio"] label, [data-testid="stRadio"] label p, [data-testid="stRadio"] span {
+        color: #0f172a !important;
+        font-weight: 700 !important;
+        font-size: 0.95rem !important;
+    }
+    
+    /* Preset Buttons in Day Mode (Clean White Cards, NOT Black!) */
+    [data-testid="stHorizontalBlock"] button {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 1.5px solid #cbd5e1 !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        font-size: 0.95rem !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
+        transition: all 0.2s ease !important;
+        padding: 10px 14px !important;
+    }
+    
+    [data-testid="stHorizontalBlock"] button:hover {
+        background-color: #f0fdf4 !important;
+        border-color: #10b981 !important;
+        color: #047857 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15) !important;
+    }
+    
+    /* Chat Text Area in Day Mode */
+    [data-testid="stTextArea"] label p {
+        color: #0f172a !important;
+        font-weight: 700 !important;
+        font-size: 1.05rem !important;
+        margin-bottom: 8px !important;
+    }
+    
+    [data-testid="stTextArea"] textarea {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 2px solid #cbd5e1 !important;
+        border-radius: 14px !important;
+        font-size: 1rem !important;
+        padding: 16px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+    }
+    
+    [data-testid="stTextArea"] textarea:focus {
+        border-color: #059669 !important;
+        box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.12) !important;
+    }
+    
+    /* Primary Action Button */
+    button[kind="primary"] {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
         color: #ffffff !important;
-        padding: 4px 11px;
-        border-radius: 8px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        margin-right: 10px;
-        display: inline-block;
-        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
-    }}
+        font-weight: 800 !important;
+        font-size: 1.15rem !important;
+        border: none !important;
+        border-radius: 14px !important;
+        padding: 14px 28px !important;
+        box-shadow: 0 4px 14px rgba(4, 120, 87, 0.35) !important;
+        transition: all 0.2s ease !important;
+    }
     
-    .outcome-tag {{
-        background: #059669;
+    button[kind="primary"]:hover {
+        background: linear-gradient(135deg, #047857 0%, #065f46 100%) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(4, 120, 87, 0.45) !important;
+    }
+    
+    /* Traffic Alert Cards */
+    .traffic-card {
+        padding: 22px 26px !important;
+        border-radius: 16px !important;
+        margin-bottom: 24px !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06) !important;
+    }
+    
+    .card-green {
+        background-color: #ecfdf5 !important;
+        border: 1.5px solid #a7f3d0 !important;
+        border-left: 8px solid #059669 !important;
+    }
+    .card-green h3, .card-green p { color: #064e3b !important; }
+    
+    .card-yellow {
+        background-color: #fffbeb !important;
+        border: 1.5px solid #fde68a !important;
+        border-left: 8px solid #d97706 !important;
+    }
+    .card-yellow h3, .card-yellow p { color: #78350f !important; }
+    
+    .card-red {
+        background-color: #fef2f2 !important;
+        border: 1.5px solid #fecaca !important;
+        border-left: 8px solid #dc2626 !important;
+    }
+    .card-red h3, .card-red p { color: #7f1d1d !important; }
+    
+    /* Summary Card in Day Mode */
+    .summary-card {
+        background: #ffffff !important;
+        border: 1.5px solid #e2e8f0 !important;
+        border-radius: 16px !important;
+        padding: 26px 30px !important;
+        margin-bottom: 24px !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    .summary-card p {
+        color: #0f172a !important;
+        font-size: 1.15rem !important;
+        line-height: 1.6 !important;
+        font-weight: 500 !important;
+    }
+    
+    .fact-tag {
+        background: #2563eb !important;
         color: #ffffff !important;
-        padding: 4px 11px;
-        border-radius: 8px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        margin-right: 10px;
-        display: inline-block;
-        box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
-    }}
+        padding: 4px 12px !important;
+        border-radius: 8px !important;
+        font-size: 0.85rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.5px !important;
+        margin-right: 12px !important;
+        display: inline-block !important;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25) !important;
+    }
     
-    .sloth-quote {{
-        background: {quote_bg};
-        border-left: 5px solid {quote_border};
-        padding: 16px 20px;
-        border-radius: 0 14px 14px 0;
-        font-style: italic;
-        margin-bottom: 24px;
-        color: {text_color};
-        line-height: 1.6;
-    }}
+    .outcome-tag {
+        background: #059669 !important;
+        color: #ffffff !important;
+        padding: 4px 12px !important;
+        border-radius: 8px !important;
+        font-size: 0.85rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.5px !important;
+        margin-right: 12px !important;
+        display: inline-block !important;
+        box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25) !important;
+    }
     
-    .reply-card {{
-        background: {card_bg};
-        border: 1px solid {card_border};
-        border-radius: 14px;
-        padding: 18px;
-        height: 100%;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-        transition: transform 0.2s ease, border-color 0.2s ease;
-    }}
+    /* Quote & Replies */
+    .sloth-quote {
+        background: #fef9c3 !important;
+        border-left: 6px solid #eab308 !important;
+        padding: 18px 24px !important;
+        border-radius: 0 16px 16px 0 !important;
+        color: #713f12 !important;
+        font-size: 1.05rem !important;
+        font-style: italic !important;
+        margin-bottom: 24px !important;
+    }
     
-    .reply-card:hover {{
-        border-color: #3b82f6;
-        transform: translateY(-2px);
-    }}
+    .reply-card {
+        background: #ffffff !important;
+        border: 1.5px solid #e2e8f0 !important;
+        border-radius: 16px !important;
+        padding: 20px !important;
+        height: 100% !important;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.04) !important;
+    }
     
-    .energy-metric {{
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: {metric_bg};
-        color: {metric_text};
-        padding: 7px 16px;
-        border-radius: 30px;
-        font-weight: 700;
-        font-size: 0.92rem;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-    }}
+    .reply-card h4 {
+        color: #0f172a !important;
+        font-size: 1.1rem !important;
+        font-weight: 800 !important;
+        margin-bottom: 4px !important;
+    }
     
-    .mascot-box {{
-        background: {card_bg};
-        border: 1px solid {card_border};
-        padding: 20px;
-        border-radius: 16px;
-        text-align: center;
-        margin-bottom: 18px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-    }}
+    .reply-card p {
+        color: #64748b !important;
+        font-size: 0.9rem !important;
+        margin-bottom: 12px !important;
+    }
     
-    .status-dot {{
+    .energy-metric {
+        background: #e2e8f0 !important;
+        color: #0f172a !important;
+        padding: 8px 18px !important;
+        border-radius: 30px !important;
+        font-weight: 800 !important;
+        font-size: 0.95rem !important;
+    }
+    
+    .status-dot {
         height: 10px;
         width: 10px;
         background-color: #10b981;
         border-radius: 50%;
         display: inline-block;
         margin-right: 6px;
-        animation: pulse 2s infinite;
-    }}
-    
-    @keyframes pulse {{
-        0% {{ transform: scale(0.95); opacity: 0.8; }}
-        50% {{ transform: scale(1.15); opacity: 1; }}
-        100% {{ transform: scale(0.95); opacity: 0.8; }}
-    }}
+    }
     </style>
-    """,
-    unsafe_allow_html=True,
-)
+    """
+else:
+    # ------------------ NIGHT MODE (Deep Slate Canopy, Sleek & Glowing) ------------------
+    theme_css = """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    
+    html, body, .stApp {
+        background-color: #0b1120 !important;
+        color: #f8fafc !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+    
+    header[data-testid="stHeader"] {
+        background: #0b1120 !important;
+        border-bottom: 1px solid #1e293b !important;
+    }
+    
+    .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6 {
+        color: #f8fafc !important;
+        font-family: 'Fredoka', cursive !important;
+    }
+    
+    .stApp p, .stApp span, .stApp div, .stApp label, [data-testid="stMarkdownContainer"] p {
+        color: #cbd5e1 !important;
+    }
+    
+    [data-testid="stSidebar"] {
+        background-color: #0f172a !important;
+        border-right: 1.5px solid #1e293b !important;
+    }
+    
+    [data-testid="stSidebar"] * {
+        color: #f8fafc !important;
+    }
+    
+    [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] caption {
+        color: #94a3b8 !important;
+    }
+    
+    [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p {
+        color: #f8fafc !important;
+        font-weight: 700 !important;
+        font-size: 0.95rem !important;
+    }
+    
+    .mascot-box {
+        background: #1e293b !important;
+        border: 1px solid #334155 !important;
+        padding: 20px !important;
+        border-radius: 16px !important;
+        text-align: center !important;
+        margin-bottom: 20px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+    }
+    
+    .mascot-box h3 {
+        color: #f8fafc !important;
+        margin: 8px 0 2px 0 !important;
+        font-size: 1.35rem !important;
+    }
+    
+    .mascot-box p {
+        color: #94a3b8 !important;
+        font-weight: 600 !important;
+    }
+    
+    [data-testid="stSidebar"] input[type="text"], 
+    [data-testid="stSidebar"] input[type="password"] {
+        background-color: #1e293b !important;
+        color: #f8fafc !important;
+        border: 1.5px solid #334155 !important;
+        border-radius: 10px !important;
+    }
+    
+    [data-testid="stSidebar"] div[data-baseweb="select"] > div {
+        background-color: #1e293b !important;
+        color: #f8fafc !important;
+        border: 1.5px solid #334155 !important;
+        border-radius: 10px !important;
+    }
+    
+    [data-testid="stSidebar"] div[data-baseweb="select"] * {
+        color: #f8fafc !important;
+    }
+    
+    [data-testid="stSidebar"] .stExpander {
+        background-color: #1e293b !important;
+        border: 1px solid #334155 !important;
+        border-radius: 10px !important;
+    }
+    
+    [data-testid="stSidebar"] .stExpander * {
+        color: #cbd5e1 !important;
+    }
+    
+    .sloth-header {
+        font-family: 'Fredoka', cursive !important;
+        font-size: 2.8rem !important;
+        color: #38bdf8 !important;
+        margin-bottom: 4px !important;
+    }
+    
+    .sloth-subtitle {
+        font-size: 1.15rem !important;
+        color: #94a3b8 !important;
+        margin-bottom: 24px !important;
+        font-weight: 500 !important;
+        line-height: 1.5 !important;
+    }
+    
+    [data-testid="stRadio"] > div {
+        background-color: #1e293b !important;
+        padding: 6px 14px !important;
+        border-radius: 30px !important;
+        border: 1.5px solid #334155 !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+    }
+    
+    [data-testid="stRadio"] label, [data-testid="stRadio"] label p, [data-testid="stRadio"] span {
+        color: #f8fafc !important;
+        font-weight: 700 !important;
+        font-size: 0.95rem !important;
+    }
+    
+    [data-testid="stHorizontalBlock"] button {
+        background-color: #1e293b !important;
+        color: #f8fafc !important;
+        border: 1.5px solid #334155 !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        font-size: 0.95rem !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+        transition: all 0.2s ease !important;
+        padding: 10px 14px !important;
+    }
+    
+    [data-testid="stHorizontalBlock"] button:hover {
+        background-color: #334155 !important;
+        border-color: #38bdf8 !important;
+        color: #38bdf8 !important;
+        transform: translateY(-2px) !important;
+    }
+    
+    [data-testid="stTextArea"] label p {
+        color: #f8fafc !important;
+        font-weight: 700 !important;
+        font-size: 1.05rem !important;
+        margin-bottom: 8px !important;
+    }
+    
+    [data-testid="stTextArea"] textarea {
+        background-color: #1e293b !important;
+        color: #f8fafc !important;
+        border: 2px solid #334155 !important;
+        border-radius: 14px !important;
+        font-size: 1rem !important;
+        padding: 16px !important;
+    }
+    
+    [data-testid="stTextArea"] textarea:focus {
+        border-color: #38bdf8 !important;
+        box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.2) !important;
+    }
+    
+    button[kind="primary"] {
+        background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        font-size: 1.15rem !important;
+        border: none !important;
+        border-radius: 14px !important;
+        padding: 14px 28px !important;
+        box-shadow: 0 4px 16px rgba(225, 29, 72, 0.4) !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    button[kind="primary"]:hover {
+        background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
+        transform: translateY(-2px) !important;
+    }
+    
+    .traffic-card {
+        padding: 22px 26px !important;
+        border-radius: 16px !important;
+        margin-bottom: 24px !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2) !important;
+    }
+    
+    .card-green {
+        background: rgba(16, 185, 129, 0.16) !important;
+        border: 1px solid rgba(16, 185, 129, 0.35) !important;
+        border-left: 8px solid #10b981 !important;
+    }
+    .card-green h3, .card-green p { color: #6ee7b7 !important; }
+    
+    .card-yellow {
+        background: rgba(245, 158, 11, 0.16) !important;
+        border: 1px solid rgba(245, 158, 11, 0.35) !important;
+        border-left: 8px solid #f59e0b !important;
+    }
+    .card-yellow h3, .card-yellow p { color: #fcd34d !important; }
+    
+    .card-red {
+        background: rgba(239, 68, 68, 0.16) !important;
+        border: 1px solid rgba(239, 68, 68, 0.35) !important;
+        border-left: 8px solid #ef4444 !important;
+    }
+    .card-red h3, .card-red p { color: #fca5a5 !important; }
+    
+    .summary-card {
+        background: rgba(30, 41, 59, 0.75) !important;
+        border: 1px solid rgba(148, 163, 184, 0.2) !important;
+        border-radius: 16px !important;
+        padding: 26px 30px !important;
+        margin-bottom: 24px !important;
+    }
+    
+    .summary-card p {
+        color: #f8fafc !important;
+        font-size: 1.15rem !important;
+        line-height: 1.6 !important;
+        font-weight: 500 !important;
+    }
+    
+    .fact-tag {
+        background: #3b82f6 !important;
+        color: #ffffff !important;
+        padding: 4px 12px !important;
+        border-radius: 8px !important;
+        font-size: 0.85rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.5px !important;
+        margin-right: 12px !important;
+        display: inline-block !important;
+    }
+    
+    .outcome-tag {
+        background: #10b981 !important;
+        color: #ffffff !important;
+        padding: 4px 12px !important;
+        border-radius: 8px !important;
+        font-size: 0.85rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.5px !important;
+        margin-right: 12px !important;
+        display: inline-block !important;
+    }
+    
+    .sloth-quote {
+        background: rgba(217, 119, 6, 0.15) !important;
+        border-left: 6px solid #f59e0b !important;
+        padding: 18px 24px !important;
+        border-radius: 0 16px 16px 0 !important;
+        color: #fef3c7 !important;
+        font-size: 1.05rem !important;
+        font-style: italic !important;
+        margin-bottom: 24px !important;
+    }
+    
+    .reply-card {
+        background: rgba(30, 41, 59, 0.75) !important;
+        border: 1px solid rgba(148, 163, 184, 0.2) !important;
+        border-radius: 16px !important;
+        padding: 20px !important;
+        height: 100% !important;
+    }
+    
+    .reply-card h4 {
+        color: #f8fafc !important;
+        font-size: 1.1rem !important;
+        font-weight: 800 !important;
+        margin-bottom: 4px !important;
+    }
+    
+    .reply-card p {
+        color: #94a3b8 !important;
+        font-size: 0.9rem !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .energy-metric {
+        background: #334155 !important;
+        color: #e2e8f0 !important;
+        padding: 8px 18px !important;
+        border-radius: 30px !important;
+        font-weight: 800 !important;
+        font-size: 0.95rem !important;
+    }
+    
+    .status-dot {
+        height: 10px;
+        width: 10px;
+        background-color: #10b981;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 6px;
+    }
+    </style>
+    """
+
+st.markdown(theme_css, unsafe_allow_html=True)
 
 # Sidebar - Settings & Model Control
 with st.sidebar:
     st.markdown(
-        f"""
+        """
         <div class="mascot-box">
-            <span style="font-size: 3.6rem;">🦥</span>
-            <h3 style="margin: 8px 0 2px 0; font-family: 'Fredoka', cursive; font-size: 1.3rem;">Sloan the Sloth</h3>
-            <p style="margin: 0; color: {subtext_color}; font-size: 0.85rem;"><span class="status-dot"></span>Conserving Energy</p>
+            <span style="font-size: 3.8rem;">🦥</span>
+            <h3>Sloan the Sloth</h3>
+            <p><span class="status-dot"></span>Conserving Energy</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -580,7 +1008,7 @@ with st.sidebar:
 with col_header_left:
     st.markdown('<div class="sloth-header">🦥 SlothDigest</div>', unsafe_allow_html=True)
     st.markdown(
-        f'<div class="sloth-subtitle">Channel your inner sloth. Let open-weight AI digest noisy group chats into a 2-line summary and 1-click canned replies.</div>',
+        '<div class="sloth-subtitle">Channel your inner sloth. Let open-weight AI digest noisy group chats into a 2-line summary and 1-click canned replies.</div>',
         unsafe_allow_html=True,
     )
 
@@ -661,8 +1089,8 @@ if res:
         <div class="traffic-card {card_class}">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <div>
-                    <h3 style="margin: 0; font-size: 1.45rem; font-family: 'Fredoka', cursive;">{badge_icon} {res.urgency_title}</h3>
-                    <p style="margin: 8px 0 0 0; font-size: 1.08rem; line-height: 1.4;">{res.urgency_verdict}</p>
+                    <h3 style="margin: 0; font-size: 1.5rem; font-family: 'Fredoka', cursive;">{badge_icon} {res.urgency_title}</h3>
+                    <p style="margin: 8px 0 0 0; font-size: 1.1rem; line-height: 1.4;">{res.urgency_verdict}</p>
                 </div>
                 <div>
                     <span class="energy-metric">⚡ {res.energy_saved}</span>
@@ -678,10 +1106,10 @@ if res:
     st.markdown(
         f"""
         <div class="summary-card">
-            <p style="margin: 0 0 16px 0; font-size: 1.12rem; line-height: 1.6;">
+            <p style="margin: 0 0 16px 0; font-size: 1.15rem; line-height: 1.6;">
                 <span class="fact-tag">THE FACTS</span> {res.summary_line_1}
             </p>
-            <p style="margin: 0; font-size: 1.12rem; line-height: 1.6;">
+            <p style="margin: 0; font-size: 1.15rem; line-height: 1.6;">
                 <span class="outcome-tag">THE CONSENSUS</span> {res.summary_line_2}
             </p>
         </div>
@@ -709,8 +1137,8 @@ if res:
             st.markdown(
                 f"""
                 <div class="reply-card">
-                    <h4 style="margin: 0 0 4px 0; font-size: 1.05rem;">{reply.title}</h4>
-                    <p style="font-size: 0.85rem; color: {subtext_color}; margin-bottom: 12px;">{reply.vibe}</p>
+                    <h4>{reply.title}</h4>
+                    <p>{reply.vibe}</p>
                 </div>
                 """,
                 unsafe_allow_html=True,
