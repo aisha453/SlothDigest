@@ -13,6 +13,14 @@ from dotenv import load_dotenv
 # Load local .env if present
 load_dotenv()
 
+# Bridge Streamlit Cloud Secrets into environment if present
+try:
+    if hasattr(st, "secrets") and "GROQ_API_KEY" in st.secrets:
+        if not os.getenv("GROQ_API_KEY"):
+            os.environ["GROQ_API_KEY"] = str(st.secrets["GROQ_API_KEY"]).strip()
+except Exception:
+    pass
+
 from prompts import SLOTH_SYSTEM_PROMPT, SlothDigestResult, CannedReply
 from sample_data import SAMPLE_PRESETS
 
