@@ -440,14 +440,17 @@ if not is_night:
         line-height: 1.5 !important;
     }
     
-    /* Day Mode Segmented Control Switcher */
+    /* Day Mode Segmented Control Switcher Pinned to Top Right Corner */
     [data-testid="stSegmentedControl"] {
+        position: fixed !important;
+        top: 14px !important;
+        right: 28px !important;
+        z-index: 999999 !important;
         background-color: #ffffff !important;
         border: 1.5px solid #cbd5e1 !important;
         border-radius: 9999px !important;
-        padding: 2px !important;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
-        margin-left: auto !important;
+        padding: 3px !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
         width: fit-content !important;
     }
     
@@ -773,14 +776,17 @@ else:
         line-height: 1.5 !important;
     }
     
-    /* Night Mode Segmented Control Switcher */
+    /* Night Mode Segmented Control Switcher Pinned to Top Right Corner */
     [data-testid="stSegmentedControl"] {
+        position: fixed !important;
+        top: 14px !important;
+        right: 28px !important;
+        z-index: 999999 !important;
         background-color: #1e293b !important;
         border: 1.5px solid #334155 !important;
         border-radius: 9999px !important;
-        padding: 2px !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
-        margin-left: auto !important;
+        padding: 3px !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
         width: fit-content !important;
     }
     
@@ -1033,29 +1039,24 @@ with st.sidebar:
         )
 
 # Main Application Area Header
-col_header_left, col_header_right = st.columns([3.8, 1.2])
+st.markdown('<div class="sloth-header">🦥 SlothDigest</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="sloth-subtitle">Channel your inner sloth. Let open-weight AI digest noisy group chats into a 2-line summary and 1-click canned replies.</div>',
+    unsafe_allow_html=True,
+)
 
-with col_header_left:
-    st.markdown('<div class="sloth-header">🦥 SlothDigest</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="sloth-subtitle">Channel your inner sloth. Let open-weight AI digest noisy group chats into a 2-line summary and 1-click canned replies.</div>',
-        unsafe_allow_html=True,
-    )
-
-with col_header_right:
-    st.markdown('<div style="display: flex; justify-content: flex-end; padding-top: 14px;">', unsafe_allow_html=True)
-    theme_selection = st.segmented_control(
-        "Theme",
-        options=["☀️", "🌙"],
-        default=st.session_state.theme_mode,
-        key="theme_mode_control",
-        label_visibility="collapsed",
-        help="Switch between Day ☀️ and Night 🌙 mode",
-    )
-    st.markdown('</div>', unsafe_allow_html=True)
-    if theme_selection and theme_selection != st.session_state.theme_mode:
-        st.session_state.theme_mode = theme_selection
-        st.rerun()
+# Theme Toggle Switcher (Pinned to top-right corner via CSS)
+theme_selection = st.segmented_control(
+    "Theme",
+    options=["☀️", "🌙"],
+    default=st.session_state.theme_mode,
+    key="theme_mode_control",
+    label_visibility="collapsed",
+    help="Switch between Day ☀️ and Night 🌙 mode",
+)
+if theme_selection and theme_selection != st.session_state.theme_mode:
+    st.session_state.theme_mode = theme_selection
+    st.rerun()
 
 # Preset Quick-Load Buttons with polished styling
 st.markdown("**⚡ Too lazy to type? Test with 1-click scenario presets:**")
