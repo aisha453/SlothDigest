@@ -270,7 +270,32 @@ def execute_sloth_digest(
     except json.JSONDecodeError as jde:
         return None, f"Model generated non-JSON output: {str(jde)}\nRaw response: {raw_content}"
     except Exception as e:
-        return None, f"Inference error: {str(e)}"
+        err_msg = str(e)
+        if "401" in err_msg or "invalid_api_key" in err_msg.lower():
+            return None, (
+                "🚨 Invalid Groq API Key (Error 401)\n\n"
+                "The Groq API key is invalid or has expired. "
+                "Please generate a free key at https://console.groq.com/keys and enter it in the sidebar or update your Secrets."
+            )
+        return None, f"Inference error: {err_msg}"
+
+
+@st.cache_data(ttl=300)
+def check_groq_key_status(key: str) -> Tuple[bool, str]:
+    """Checks if a Groq API key is valid by testing against Groq API."""
+    if not key or not key.strip():
+        return False, "No key provided"
+    try:
+        from groq import Groq
+
+        client = Groq(api_key=key.strip())
+        client.models.list()
+        return True, "Valid"
+    except Exception as e:
+        err = str(e)
+        if "401" in err or "invalid_api_key" in err.lower():
+            return False, "Invalid API key"
+        return False, err
 
 
 def get_groq_models(api_key=None):
@@ -1189,16 +1214,28 @@ with st.sidebar:
 
     if is_groq:
         system_key = os.getenv("GROQ_API_KEY", "").strip()
+        custom_key = ""
         if system_key:
-            st.caption("🔒 **System API Key Connected** (Free Tier)")
-            with st.expander("🔑 Override with Custom Key (Optional)"):
+            is_valid, reason = check_groq_key_status(system_key)
+            if is_valid:
+                st.caption("🔒 **System API Key Connected** (Free Tier)")
+                with st.expander("🔑 Override with Custom Key (Optional)"):
+                    custom_key = st.text_input(
+                        "Custom Groq Key",
+                        type="password",
+                        placeholder="gsk_...",
+                        help="Leave blank to use pre-configured system key.",
+                    )
+                api_key = custom_key.strip() if custom_key and custom_key.strip() else system_key
+            else:
+                st.warning("⚠️ **Groq API Key Needs Update (401)**\nPlease paste a valid key from [console.groq.com/keys](https://console.groq.com/keys):")
                 custom_key = st.text_input(
-                    "Custom Groq Key",
+                    "Enter Valid Groq API Key",
                     type="password",
                     placeholder="gsk_...",
-                    help="Leave blank to use pre-configured system key.",
+                    help="Generate a fresh key at https://console.groq.com/keys",
                 )
-            api_key = custom_key.strip() if custom_key and custom_key.strip() else system_key
+                api_key = custom_key.strip() if custom_key and custom_key.strip() else ""
         else:
             api_key = st.text_input(
                 "Groq API Key",
