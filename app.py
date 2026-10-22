@@ -310,17 +310,18 @@ if "is_night_mode" not in st.session_state:
     st.session_state.is_night_mode = False
 
 # Top Navigation Bar with Day / Night Theme Switch
-col_header_left, col_header_right = st.columns([3.6, 1.4])
+col_header_left, col_header_right = st.columns([4.2, 0.8])
 
 with col_header_right:
     theme_selection = st.radio(
         "Theme Mode",
-        ["☀️ Day Mode", "🌙 Night Mode"],
+        ["☀️", "🌙"],
         index=0 if not st.session_state.is_night_mode else 1,
         horizontal=True,
         label_visibility="collapsed",
+        help="Toggle Day ☀️ / Night 🌙 Theme",
     )
-    st.session_state.is_night_mode = "Night" in theme_selection
+    st.session_state.is_night_mode = (theme_selection == "🌙")
 
 is_night = st.session_state.is_night_mode
 
@@ -443,19 +444,26 @@ if not is_night:
         line-height: 1.5 !important;
     }
     
-    /* Day Mode Radio Switcher Pill */
+    /* Day Mode Compact Emoji Switcher Pill */
     [data-testid="stRadio"] > div {
         background-color: #ffffff !important;
-        padding: 6px 14px !important;
-        border-radius: 30px !important;
+        padding: 4px 12px !important;
+        border-radius: 9999px !important;
         border: 1.5px solid #cbd5e1 !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 14px !important;
+        width: fit-content !important;
+        margin-left: auto !important;
     }
     
     [data-testid="stRadio"] label, [data-testid="stRadio"] label p, [data-testid="stRadio"] span {
-        color: #0f172a !important;
-        font-weight: 700 !important;
-        font-size: 0.95rem !important;
+        font-size: 1.35rem !important;
+        cursor: pointer !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
     
     /* Preset Buttons in Day Mode (Clean White Cards, NOT Black!) */
@@ -756,18 +764,26 @@ else:
         line-height: 1.5 !important;
     }
     
+    /* Night Mode Compact Emoji Switcher Pill */
     [data-testid="stRadio"] > div {
         background-color: #1e293b !important;
-        padding: 6px 14px !important;
-        border-radius: 30px !important;
+        padding: 4px 12px !important;
+        border-radius: 9999px !important;
         border: 1.5px solid #334155 !important;
         box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 14px !important;
+        width: fit-content !important;
+        margin-left: auto !important;
     }
     
     [data-testid="stRadio"] label, [data-testid="stRadio"] label p, [data-testid="stRadio"] span {
-        color: #f8fafc !important;
-        font-weight: 700 !important;
-        font-size: 0.95rem !important;
+        font-size: 1.35rem !important;
+        cursor: pointer !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
     
     [data-testid="stHorizontalBlock"] button {
