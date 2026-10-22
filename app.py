@@ -338,7 +338,7 @@ st.set_page_config(
     page_title="SlothDigest 🦥 - Conserve Your Energy",
     page_icon="🦥",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # Initialize Session State
@@ -392,77 +392,15 @@ if not is_night:
         color: #1e293b !important;
     }
     
-    /* Sidebar Overrides for Day Mode */
-    [data-testid="stSidebar"] {
-        background-color: #ffffff !important;
-        border-right: 1.5px solid #e2e8f0 !important;
-    }
-    
-    [data-testid="stSidebar"] * {
-        color: #0f172a !important;
-    }
-    
-    [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] caption {
-        color: #475569 !important;
-    }
-    
-    [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p {
-        color: #0f172a !important;
-        font-weight: 700 !important;
-        font-size: 0.95rem !important;
-    }
-    
-    /* Mascot Box in Sidebar */
-    .mascot-box {
-        background: #f1f5f9 !important;
-        border: 1.5px solid #cbd5e1 !important;
-        padding: 20px !important;
-        border-radius: 16px !important;
-        text-align: center !important;
-        margin-bottom: 20px !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
-    }
-    
-    .mascot-box h3 {
-        color: #0f172a !important;
-        margin: 8px 0 2px 0 !important;
-        font-size: 1.35rem !important;
-    }
-    
-    .mascot-box p {
-        color: #475569 !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Sidebar Inputs & Dropdowns */
-    [data-testid="stSidebar"] input[type="text"], 
-    [data-testid="stSidebar"] input[type="password"] {
-        background-color: #ffffff !important;
-        color: #0f172a !important;
-        border: 1.5px solid #cbd5e1 !important;
-        border-radius: 10px !important;
-    }
-    
-    [data-testid="stSidebar"] div[data-baseweb="select"] > div {
-        background-color: #ffffff !important;
-        color: #0f172a !important;
-        border: 1.5px solid #cbd5e1 !important;
-        border-radius: 10px !important;
-    }
-    
-    [data-testid="stSidebar"] div[data-baseweb="select"] * {
-        color: #0f172a !important;
-    }
-    
-    /* Sidebar Expander */
-    [data-testid="stSidebar"] .stExpander {
-        background-color: #f8fafc !important;
-        border: 1.5px solid #e2e8f0 !important;
-        border-radius: 10px !important;
-    }
-    
-    [data-testid="stSidebar"] .stExpander * {
-        color: #334155 !important;
+    /* Completely Remove Left Menu / Sidebar in Day Mode */
+    [data-testid="stSidebar"],
+    [data-testid="collapsedControl"],
+    section[data-testid="stSidebar"],
+    div[data-testid="stSidebarCollapsedControl"],
+    button[kind="header"] {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
     }
     
     /* Header & Subtitle */
@@ -813,73 +751,15 @@ else:
         color: #cbd5e1 !important;
     }
     
-    [data-testid="stSidebar"] {
-        background-color: #0f172a !important;
-        border-right: 1.5px solid #1e293b !important;
-    }
-    
-    [data-testid="stSidebar"] * {
-        color: #f8fafc !important;
-    }
-    
-    [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] caption {
-        color: #94a3b8 !important;
-    }
-    
-    [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p {
-        color: #f8fafc !important;
-        font-weight: 700 !important;
-        font-size: 0.95rem !important;
-    }
-    
-    .mascot-box {
-        background: #1e293b !important;
-        border: 1px solid #334155 !important;
-        padding: 20px !important;
-        border-radius: 16px !important;
-        text-align: center !important;
-        margin-bottom: 20px !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
-    }
-    
-    .mascot-box h3 {
-        color: #f8fafc !important;
-        margin: 8px 0 2px 0 !important;
-        font-size: 1.35rem !important;
-    }
-    
-    .mascot-box p {
-        color: #94a3b8 !important;
-        font-weight: 600 !important;
-    }
-    
-    [data-testid="stSidebar"] input[type="text"], 
-    [data-testid="stSidebar"] input[type="password"] {
-        background-color: #1e293b !important;
-        color: #f8fafc !important;
-        border: 1.5px solid #334155 !important;
-        border-radius: 10px !important;
-    }
-    
-    [data-testid="stSidebar"] div[data-baseweb="select"] > div {
-        background-color: #1e293b !important;
-        color: #f8fafc !important;
-        border: 1.5px solid #334155 !important;
-        border-radius: 10px !important;
-    }
-    
-    [data-testid="stSidebar"] div[data-baseweb="select"] * {
-        color: #f8fafc !important;
-    }
-    
-    [data-testid="stSidebar"] .stExpander {
-        background-color: #1e293b !important;
-        border: 1px solid #334155 !important;
-        border-radius: 10px !important;
-    }
-    
-    [data-testid="stSidebar"] .stExpander * {
-        color: #cbd5e1 !important;
+    /* Completely Remove Left Menu / Sidebar in Night Mode */
+    [data-testid="stSidebar"],
+    [data-testid="collapsedControl"],
+    section[data-testid="stSidebar"],
+    div[data-testid="stSidebarCollapsedControl"],
+    button[kind="header"] {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
     }
     
     .sloth-header {
@@ -1195,84 +1075,12 @@ if theme_selection and theme_selection != st.session_state.theme_mode:
     st.session_state.theme_mode = theme_selection
     st.rerun()
 
-# Sidebar - Settings & Model Control
-with st.sidebar:
-    st.markdown(
-        """
-        <div class="mascot-box">
-            <span style="font-size: 3.8rem;">🦥</span>
-            <h3>Sloan the Sloth</h3>
-            <p><span class="status-dot"></span>Conserving Energy</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.markdown("### ⚙️ Sloth Settings")
-    st.caption("Open-weight intelligence on demand.")
-
-    provider = st.selectbox(
-        "AI Provider",
-        ["Groq (Free Cloud LPU - Blazing Fast)", "Ollama (Local - 100% Offline)"],
-        index=0,
-        help="Groq serves open-weight models for free at lightspeed. Ollama runs them directly on your machine with zero internet.",
-    )
-
-    is_groq = "Groq" in provider
-
-    if is_groq:
-        system_key = os.getenv("GROQ_API_KEY", "").strip()
-        custom_key = ""
-        if system_key:
-            is_valid, reason = check_groq_key_status(system_key)
-            if is_valid:
-                st.caption("🔒 **System API Key Connected** (Free Tier)")
-                with st.expander("🔑 Override with Custom Key (Optional)"):
-                    custom_key = st.text_input(
-                        "Custom Groq Key",
-                        type="password",
-                        placeholder="gsk_...",
-                        help="Leave blank to use pre-configured system key.",
-                    )
-                api_key = custom_key.strip() if custom_key and custom_key.strip() else system_key
-            else:
-                st.warning("⚠️ **Groq API Key Needs Update (401)**\nPlease paste a valid key from [console.groq.com/keys](https://console.groq.com/keys):")
-                custom_key = st.text_input(
-                    "Enter Valid Groq API Key",
-                    type="password",
-                    placeholder="gsk_...",
-                    help="Generate a fresh key at https://console.groq.com/keys",
-                )
-                api_key = custom_key.strip() if custom_key and custom_key.strip() else ""
-        else:
-            api_key = st.text_input(
-                "Groq API Key",
-                type="password",
-                placeholder="gsk_...",
-                help="Get your free API key at https://console.groq.com",
-            )
-        groq_models = get_groq_models(api_key)
-        model = st.selectbox(
-            "Open-Weight Model",
-            groq_models,
-            index=0,
-            help="Select an active open-weight model hosted on Groq.",
-        )
-        ollama_url = ""
-    else:
-        api_key = None
-        ollama_url = st.text_input("Ollama Host URL", value="http://localhost:11434")
-        model = st.text_input("Local Model Name", value="llama3.1:latest")
-
-    st.divider()
-
-    with st.expander("🌱 Why Open Weights Matter"):
-        st.markdown(
-            """
-            - **Privacy First**: Group chats and work messages contain sensitive private chats. Open-weight models guarantee your data isn't harvested for proprietary AI training.
-            - **Zero Cost Forever**: Runs entirely on Groq's generous free tier or free local hardware.
-            - **Portability**: Switching from cloud to 100% offline air-gapped local inference requires 0 code changes.
-            """
-        )
+# Backend AI Engine Configuration (Operates securely in background, 0 frontend display)
+is_groq = True
+provider = "Groq"
+api_key = os.getenv("GROQ_API_KEY", "").strip()
+model = "openai/gpt-oss-20b"
+ollama_url = ""
 
 # Main Application Area Header
 st.markdown('<div class="sloth-header">🦥 SlothDigest</div>', unsafe_allow_html=True)
@@ -1413,3 +1221,13 @@ if res:
                 unsafe_allow_html=True,
             )
             st.code(reply.response, language=None)
+
+st.divider()
+with st.expander("🌱 Why Open Weights Matter"):
+    st.markdown(
+        """
+        - **Privacy First**: Group chats and work messages contain sensitive private chats. Open-weight models guarantee your data isn't harvested for proprietary AI training.
+        - **Zero Cost Forever**: Runs entirely on Groq's generous free tier or free local hardware.
+        - **Portability**: Switching from cloud to 100% offline air-gapped local inference requires 0 code changes.
+        """
+    )
