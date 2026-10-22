@@ -331,6 +331,16 @@ if not is_night:
         border-bottom: 1px solid #e2e8f0 !important;
     }
     
+    /* Hide Deploy Button & Streamlit Footer */
+    .stDeployButton, [data-testid="stDeployButton"], div[class*="stDeployButton"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    footer {
+        visibility: hidden !important;
+        display: none !important;
+    }
+    
     /* Ensure ALL text elements in main page are crisp and dark */
     .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6 {
         color: #0f172a !important;
@@ -658,6 +668,16 @@ else:
     header[data-testid="stHeader"] {
         background: #0b1120 !important;
         border-bottom: 1px solid #1e293b !important;
+    }
+    
+    /* Hide Deploy Button & Streamlit Footer */
+    .stDeployButton, [data-testid="stDeployButton"], div[class*="stDeployButton"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    footer {
+        visibility: hidden !important;
+        display: none !important;
     }
     
     .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6 {
