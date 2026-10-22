@@ -1188,13 +1188,24 @@ with st.sidebar:
     is_groq = "Groq" in provider
 
     if is_groq:
-        api_key = st.text_input(
-            "Groq API Key",
-            type="password",
-            value=os.getenv("GROQ_API_KEY", ""),
-            help="Get your free API key at https://console.groq.com",
-            placeholder="gsk_...",
-        )
+        system_key = os.getenv("GROQ_API_KEY", "").strip()
+        if system_key:
+            st.caption("🔒 **System API Key Connected** (Free Tier)")
+            with st.expander("🔑 Override with Custom Key (Optional)"):
+                custom_key = st.text_input(
+                    "Custom Groq Key",
+                    type="password",
+                    placeholder="gsk_...",
+                    help="Leave blank to use pre-configured system key.",
+                )
+            api_key = custom_key.strip() if custom_key and custom_key.strip() else system_key
+        else:
+            api_key = st.text_input(
+                "Groq API Key",
+                type="password",
+                placeholder="gsk_...",
+                help="Get your free API key at https://console.groq.com",
+            )
         groq_models = get_groq_models(api_key)
         model = st.selectbox(
             "Open-Weight Model",
