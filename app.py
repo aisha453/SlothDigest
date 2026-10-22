@@ -306,24 +306,10 @@ if "chat_input" not in st.session_state:
     st.session_state.chat_input = ""
 if "digest_result" not in st.session_state:
     st.session_state.digest_result = None
-if "is_night_mode" not in st.session_state:
-    st.session_state.is_night_mode = False
+if "theme_mode" not in st.session_state:
+    st.session_state.theme_mode = "☀️"
 
-# Top Navigation Bar with Day / Night Theme Switch
-col_header_left, col_header_right = st.columns([4.2, 0.8])
-
-with col_header_right:
-    theme_selection = st.radio(
-        "Theme Mode",
-        ["☀️", "🌙"],
-        index=0 if not st.session_state.is_night_mode else 1,
-        horizontal=True,
-        label_visibility="collapsed",
-        help="Toggle Day ☀️ / Night 🌙 Theme",
-    )
-    st.session_state.is_night_mode = (theme_selection == "🌙")
-
-is_night = st.session_state.is_night_mode
+is_night = (st.session_state.theme_mode == "🌙")
 
 # Inject Powerful, Comprehensive CSS Overrides for 100% Crisp Visibility
 if not is_night:
@@ -444,26 +430,29 @@ if not is_night:
         line-height: 1.5 !important;
     }
     
-    /* Day Mode Compact Emoji Switcher Pill */
-    [data-testid="stRadio"] > div {
+    /* Day Mode Segmented Control Switcher */
+    [data-testid="stSegmentedControl"] {
         background-color: #ffffff !important;
-        padding: 4px 12px !important;
-        border-radius: 9999px !important;
         border: 1.5px solid #cbd5e1 !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        gap: 14px !important;
-        width: fit-content !important;
+        border-radius: 9999px !important;
+        padding: 2px !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
         margin-left: auto !important;
+        width: fit-content !important;
     }
     
-    [data-testid="stRadio"] label, [data-testid="stRadio"] label p, [data-testid="stRadio"] span {
-        font-size: 1.35rem !important;
+    [data-testid="stSegmentedControl"] button {
+        font-size: 1.25rem !important;
+        border-radius: 9999px !important;
+        border: none !important;
+        padding: 4px 14px !important;
+        background: transparent !important;
         cursor: pointer !important;
-        padding: 0 !important;
-        margin: 0 !important;
+    }
+    
+    [data-testid="stSegmentedControl"] button[aria-selected="true"] {
+        background-color: #059669 !important;
+        box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3) !important;
     }
     
     /* Preset Buttons in Day Mode (Clean White Cards, NOT Black!) */
@@ -764,26 +753,29 @@ else:
         line-height: 1.5 !important;
     }
     
-    /* Night Mode Compact Emoji Switcher Pill */
-    [data-testid="stRadio"] > div {
+    /* Night Mode Segmented Control Switcher */
+    [data-testid="stSegmentedControl"] {
         background-color: #1e293b !important;
-        padding: 4px 12px !important;
-        border-radius: 9999px !important;
         border: 1.5px solid #334155 !important;
+        border-radius: 9999px !important;
+        padding: 2px !important;
         box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        gap: 14px !important;
-        width: fit-content !important;
         margin-left: auto !important;
+        width: fit-content !important;
     }
     
-    [data-testid="stRadio"] label, [data-testid="stRadio"] label p, [data-testid="stRadio"] span {
-        font-size: 1.35rem !important;
+    [data-testid="stSegmentedControl"] button {
+        font-size: 1.25rem !important;
+        border-radius: 9999px !important;
+        border: none !important;
+        padding: 4px 14px !important;
+        background: transparent !important;
         cursor: pointer !important;
-        padding: 0 !important;
-        margin: 0 !important;
+    }
+    
+    [data-testid="stSegmentedControl"] button[aria-selected="true"] {
+        background-color: #38bdf8 !important;
+        box-shadow: 0 2px 8px rgba(56, 189, 248, 0.4) !important;
     }
     
     [data-testid="stHorizontalBlock"] button {
@@ -1021,12 +1013,29 @@ with st.sidebar:
         )
 
 # Main Application Area Header
+col_header_left, col_header_right = st.columns([3.8, 1.2])
+
 with col_header_left:
     st.markdown('<div class="sloth-header">🦥 SlothDigest</div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="sloth-subtitle">Channel your inner sloth. Let open-weight AI digest noisy group chats into a 2-line summary and 1-click canned replies.</div>',
         unsafe_allow_html=True,
     )
+
+with col_header_right:
+    st.markdown('<div style="display: flex; justify-content: flex-end; padding-top: 14px;">', unsafe_allow_html=True)
+    theme_selection = st.segmented_control(
+        "Theme",
+        options=["☀️", "🌙"],
+        default=st.session_state.theme_mode,
+        key="theme_mode_control",
+        label_visibility="collapsed",
+        help="Switch between Day ☀️ and Night 🌙 mode",
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
+    if theme_selection and theme_selection != st.session_state.theme_mode:
+        st.session_state.theme_mode = theme_selection
+        st.rerun()
 
 # Preset Quick-Load Buttons with polished styling
 st.markdown("**⚡ Too lazy to type? Test with 1-click scenario presets:**")
