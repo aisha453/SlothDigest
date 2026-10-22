@@ -663,24 +663,66 @@ if not is_night:
     
     .reply-card {
         background: #ffffff !important;
-        border: 1.5px solid #e2e8f0 !important;
+        border: 1.5px solid #cbd5e1 !important;
         border-radius: 16px !important;
         padding: 20px !important;
-        height: 100% !important;
+        min-height: 105px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
         box-shadow: 0 3px 10px rgba(0,0,0,0.04) !important;
     }
     
     .reply-card h4 {
         color: #0f172a !important;
-        font-size: 1.1rem !important;
+        font-size: 1.15rem !important;
         font-weight: 800 !important;
         margin-bottom: 4px !important;
     }
     
     .reply-card p {
         color: #64748b !important;
-        font-size: 0.9rem !important;
-        margin-bottom: 12px !important;
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        margin-bottom: 0px !important;
+    }
+    
+    /* Canned Reply Code Blocks in Day Mode (Clean White/Soft-Slate with Crisp Dark Text) */
+    [data-testid="stCode"], 
+    .stCode,
+    [data-testid="stCode"] > div,
+    [data-testid="stCodeUnhighlighted"],
+    [data-testid="stCode"] pre,
+    [data-testid="stCode"] code {
+        background-color: #f1f5f9 !important;
+        border: 1.5px solid #cbd5e1 !important;
+        border-radius: 12px !important;
+    }
+    
+    [data-testid="stCode"] *,
+    .stCode *,
+    [data-testid="stCodeUnhighlighted"] *,
+    [data-testid="stCode"] pre *,
+    [data-testid="stCode"] code * {
+        color: #0f172a !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 1.05rem !important;
+        font-weight: 700 !important;
+        background: transparent !important;
+    }
+    
+    [data-testid="stCode"] button {
+        background-color: #e2e8f0 !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+        color: #334155 !important;
+    }
+    [data-testid="stCode"] button:hover {
+        background-color: #cbd5e1 !important;
+        color: #0f172a !important;
+    }
+    [data-testid="stCode"] button svg {
+        fill: #334155 !important;
     }
     
     .energy-metric {
@@ -1028,20 +1070,62 @@ else:
         border: 1px solid rgba(148, 163, 184, 0.2) !important;
         border-radius: 16px !important;
         padding: 20px !important;
-        height: 100% !important;
+        min-height: 105px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
     }
     
     .reply-card h4 {
         color: #f8fafc !important;
-        font-size: 1.1rem !important;
+        font-size: 1.15rem !important;
         font-weight: 800 !important;
         margin-bottom: 4px !important;
     }
     
     .reply-card p {
         color: #94a3b8 !important;
-        font-size: 0.9rem !important;
-        margin-bottom: 12px !important;
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        margin-bottom: 0px !important;
+    }
+    
+    /* Canned Reply Code Blocks in Night Mode (Deep Slate with Crisp Glowing White Text) */
+    [data-testid="stCode"], 
+    .stCode,
+    [data-testid="stCode"] > div,
+    [data-testid="stCodeUnhighlighted"],
+    [data-testid="stCode"] pre,
+    [data-testid="stCode"] code {
+        background-color: #1e293b !important;
+        border: 1.5px solid #334155 !important;
+        border-radius: 12px !important;
+    }
+    
+    [data-testid="stCode"] *,
+    .stCode *,
+    [data-testid="stCodeUnhighlighted"] *,
+    [data-testid="stCode"] pre *,
+    [data-testid="stCode"] code * {
+        color: #f8fafc !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 1.05rem !important;
+        font-weight: 600 !important;
+        background: transparent !important;
+    }
+    
+    [data-testid="stCode"] button {
+        background-color: #334155 !important;
+        border: 1px solid #475569 !important;
+        border-radius: 8px !important;
+        color: #f8fafc !important;
+    }
+    [data-testid="stCode"] button:hover {
+        background-color: #475569 !important;
+        color: #ffffff !important;
+    }
+    [data-testid="stCode"] button svg {
+        fill: #f8fafc !important;
     }
     
     .energy-metric {
