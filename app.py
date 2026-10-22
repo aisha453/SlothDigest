@@ -191,7 +191,7 @@ def execute_sloth_digest(
     messages_text: str,
     api_key: Optional[str] = None,
     provider: str = "Groq",
-    model: str = "llama-3.1-8b-instant",
+    model: str = "openai/gpt-oss-20b",
     ollama_url: str = "http://localhost:11434/v1",
 ) -> Tuple[Optional[SlothDigestResult], Optional[str]]:
     """Analyzes message dump and returns bulletproof SlothDigestResult."""
@@ -300,9 +300,8 @@ def check_groq_key_status(key: str) -> Tuple[bool, str]:
 
 def get_groq_models(api_key=None):
     fallback_models = [
-        "llama-3.1-8b-instant",
-        "openai/gpt-oss-120b",
         "openai/gpt-oss-20b",
+        "openai/gpt-oss-120b",
         "qwen/qwen3.8-27b",
     ]
     key = api_key or os.getenv("GROQ_API_KEY")
@@ -318,10 +317,18 @@ def get_groq_models(api_key=None):
             for m in response.data
             if not any(x in m.id.lower() for x in ["whisper", "tts", "guard", "orpheus"])
         ]
-        if "llama-3.1-8b-instant" in active:
-            active.remove("llama-3.1-8b-instant")
-            active.insert(0, "llama-3.1-8b-instant")
-        return active if active else fallback_models
+        priority = [
+            "openai/gpt-oss-20b",
+            "openai/gpt-oss-120b",
+            "qwen/qwen3.8-27b",
+            "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant",
+        ]
+        ordered = [p for p in priority if p in active]
+        for m in active:
+            if m not in ordered:
+                ordered.append(m)
+        return ordered if ordered else fallback_models
     except Exception:
         return fallback_models
 
