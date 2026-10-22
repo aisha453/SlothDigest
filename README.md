@@ -5,7 +5,7 @@
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![Powered by Groq](https://img.shields.io/badge/Powered%20by-Groq%20LPU-f55036.svg)](https://groq.com)
-[![Open Weights: Llama 3.3](https://img.shields.io/badge/Model-Llama%203.3%2070B%20%7C%20Llama%203.1%208B-purple.svg)](https://ai.meta.com/llama/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit%20Cloud-FF4B4B.svg)](https://slothdigest.streamlit.app)
 [![Ollama Ready](https://img.shields.io/badge/Local%20Inference-Ollama%20Compatible-black.svg)](https://ollama.ai)
 
 ---
@@ -99,7 +99,7 @@ SlothDigest is architected to switch seamlessly between cloud and local open-wei
 ### DEV.to Submission Post (Ready to Copy & Publish!)
 
 **Title:** SlothDigest 🦥: Rewarding Laziness with Open-Weight AI  
-**Tags:** `#ai`, `#opensource`, `#groq`, `#llama`
+**Tags:** `#openweightai`, `#devchallenge`, `#groq`, `#ai`, `#opensource`
 
 ---
 
@@ -108,39 +108,47 @@ Tomorrow is **International Sloth Day**, and our favorite DEV moderator [Sloan t
 
 Yet everyday, developers and humans burn mental stamina reading 50-message Slack threads, chaotic family group chats, or petty email chains, asking the same exhausting question: *"Do I actually need to care about this?"*
 
-For the **Slow and Steady** challenge, I wanted to build something that honors Sloan by doing the work so you don't have to: **SlothDigest**.
+For the **Slow and Steady** challenge, I built something that honors Sloan by doing the work so you don't have to: **SlothDigest**.
+
+---
+
+#### Live Demo & Repository
+- 🌐 **Live Web App**: [https://slothdigest.streamlit.app](https://slothdigest.streamlit.app)
+- 💻 **GitHub Repository**: [https://github.com/aisha453/SlothDigest](https://github.com/aisha453/SlothDigest)
 
 ---
 
 #### What I Built
 **SlothDigest** takes any messy dump of unread messages and gives you:
-1. **The Urgency Traffic Light**: Tells you in plain English if you can safely go back to sleep (🟢 Green), skim it later (🟡 Yellow), or if you actually need to do something (🔴 Red).
-2. **The 2-Line Sleepy Summary**: Strips away every bit of drama, emotional venting, and fluff to give you:
-   - Line 1: What happened.
-   - Line 2: The bottom line.
-3. **1-Click Zero-Brain Canned Replies**: Three pre-written responses you can copy with one click:
+1. **🟢 The Urgency Traffic Light**: Tells you in plain English if you can safely go back to sleep (🟢 Green), skim it later (🟡 Yellow), or if you actually need to wake up and act (🔴 Red).
+2. **📋 The 2-Line Sleepy Summary**: Strips away every bit of drama, emotional venting, and fluff to give you:
+   - Line 1: What happened (pure facts).
+   - Line 2: The bottom line / consensus.
+3. **💤 1-Click Zero-Brain Canned Replies**: Three pre-written responses you can copy with one click:
    - *The Minimalist* ("Sounds good! 👍")
    - *The Graceful Delayer* ("Reviewing this later this afternoon, thanks!")
-   - *The Diplomatic Delegator* ("Thanks for taking the lead on this @Alex, deferring to your call!")
+   - *The Diplomatic Delegator* ("Thanks for handling this, happy to follow your lead!")
+4. **⚡ Energy Saved Meter**: Calculates how much human time and mental stamina was spared.
+5. **☀️/🌙 Day & Night Themes**: Toggle between high-contrast Day Mode and deep slate Night Mode with a single click.
 
 ---
 
 #### Why Open Innovation Matters
-The prompt asks: *Tell us where your open-based approach worked better than a closed one.* Here is why open-weight models are the beating heart of SlothDigest:
+The challenge asks: *Tell us where your open-based approach worked better than a closed one.* Here is why open-weight models are the beating heart of SlothDigest:
 
 1. **Absolute Privacy for Personal Messages**:
-   Group chats and internal work threads contain private jokes, confidential roadmap discussions, or family gossip. Sending this raw text into proprietary closed-API black boxes means risking your data being used to train future corporate models. With open-weight models (like Meta's Llama 3.3 and Llama 3.1), you retain full sovereignty.
+   Group chats and internal work threads contain private jokes, confidential roadmap discussions, or family gossip. Sending this raw text into proprietary closed-API black boxes means risking your data being used to train future corporate models. With open-weight models, you retain full sovereignty.
 2. **True Local Portability with Ollama**:
-   Because SlothDigest is built on open standards, you can toggle a single dropdown in the sidebar to switch from Groq's cloud to a 100% offline, air-gapped **Ollama** model running locally on your laptop. It works on an airplane or cabin in the woods with zero internet connection.
+   Because SlothDigest is built on open standards, you can switch from Groq's cloud to a 100% offline, air-gapped **Ollama** model running locally on your laptop with zero code changes. It works on an airplane or cabin in the woods with zero internet connection.
 3. **Zero Cost Forever**:
    By taking advantage of Groq's ultra-fast inference on open weights, anyone can clone this project, run it for $0, and never worry about unexpected credit card bills or API subscription paywalls.
 
 ---
 
 #### Tech Stack
-- **AI Models**: `llama-3.3-70b-versatile` & `llama-3.1-8b-instant` via Groq; compatible with local `llama3.1` via Ollama.
+- **AI Engine**: Open-weight intelligence on Groq LPU cloud; fully compatible with local `llama3.1` via Ollama.
 - **Backend / Schema**: Python 3.11 + Pydantic v2 for structured JSON enforcement.
-- **Frontend**: Streamlit with custom pastel Sloth styling and clipboard integration.
+- **Frontend**: Streamlit with custom Day/Night styling and clipboard integration.
 
 ---
 
