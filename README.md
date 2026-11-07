@@ -49,7 +49,7 @@ cp .env.example .env
 # Edit .env and paste your Groq API key:
 # GROQ_API_KEY=gsk_...
 ```
-*(You can also paste the API key directly into the application sidebar at runtime).*
+*(Or configure it via Streamlit Secrets on Cloud, or in your system environment).*
 
 ### 4. Run the App
 Launch the Streamlit web application:
@@ -87,7 +87,7 @@ SlothDigest is architected to switch seamlessly between cloud and local open-wei
                ▼                             ▼
        [ Groq Cloud LPU ]           [ Local Ollama ]
        • Llama 3.3 70B (Versatile)  • Llama 3.1 8B / Qwen 2.5
-       • Llama 3.1 8B (Instant)     • 100% Offline & Private
+       • GPT-OSS 20B (Active OSS)   • 100% Offline & Private
        • Free API tier              • Air-gapped on laptop
 ```
 

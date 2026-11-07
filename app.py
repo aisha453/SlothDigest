@@ -3,6 +3,7 @@ app.py - SlothDigest: The Lazy Message Catch-up & Reply Generator.
 DEV.to "Slow and Steady" (International Sloth Day) Hackathon Project.
 """
 
+import html
 import json
 import os
 import re
@@ -23,274 +24,29 @@ except Exception:
 
 from prompts import SLOTH_SYSTEM_PROMPT, SlothDigestResult, CannedReply
 from sample_data import SAMPLE_PRESETS
+from groq_client import (
+    clean_lead,
+    extract_summary,
+    parse_sloth_result,
+    run_sloth_digest,
+    run_sloth_digest as execute_sloth_digest,
+    get_groq_models,
+)
 
 
 def clean_html(html_str: str) -> str:
     """Strips all leading and trailing indentation from multiline HTML/SVG strings
     so that Streamlit's markdown parser never treats lines with 4+ spaces of indentation
     as code blocks (<pre><code>)."""
-    return "\n".join(line.strip() for line in html_str.strip().splitlines() if line.strip())
+    if not html_str:
+        return ""
+    return "\n".join(line.strip() for line in str(html_str).strip().splitlines() if line.strip())
 
 
 def render_html(html_str: str) -> None:
     """Renders multiline HTML/SVG cleanly in Streamlit without triggering markdown code-block behavior."""
     st.markdown(clean_html(html_str), unsafe_allow_html=True)
 
-
-
-def clean_lead(s: str) -> str:
-    """Strips leading numbers, bullets, 'Line 1:', 'The Facts:', etc."""
-    if not s:
-        return ""
-    patterns = [
-        r"^[0-9]+[\.\)]\s*",
-        r"^(line\s*[0-9]+:?)\s*",
-        r"^(the\s*facts?:?|facts?:?)\s*",
-        r"^(the\s*consensus:?|consensus:?|the\s*outcome:?|outcome:?)\s*",
-    ]
-    cleaned = str(s).strip()
-    for p in patterns:
-        cleaned = re.sub(p, "", cleaned, flags=re.IGNORECASE).strip()
-    return cleaned
-
-
-def extract_summary(clean: dict, raw_json: dict) -> Tuple[str, str]:
-    """Extracts summary line 1 and line 2 from any possible LLM output structure."""
-    s1, s2 = None, None
-
-    for k in ["summaryline1", "summary1", "line1", "facts", "thefacts", "whathappened"]:
-        if clean.get(k) and isinstance(clean[k], str):
-            s1 = clean[k]
-            break
-    for k in ["summaryline2", "summary2", "line2", "consensus", "theconsensus", "outcome"]:
-        if clean.get(k) and isinstance(clean[k], str):
-            s2 = clean[k]
-            break
-
-    val = clean.get("twolinesummary") or clean.get("summary") or clean.get("tldr")
-    if val is None:
-        for rk, rv in raw_json.items():
-            if re.sub(r"[^a-zA-Z0-9]", "", str(rk)).lower() in ["twolinesummary", "summary", "tldr"]:
-                val = rv
-                break
-
-    if val is not None:
-        if isinstance(val, list) and len(val) >= 1:
-            s1 = s1 or str(val[0])
-            if len(val) >= 2:
-                s2 = s2 or str(val[1])
-        elif isinstance(val, dict):
-            in_c = {re.sub(r"[^a-zA-Z0-9]", "", str(ik)).lower(): iv for ik, iv in val.items()}
-            s1 = s1 or in_c.get("line1") or in_c.get("facts") or in_c.get("summaryline1") or in_c.get("summary1")
-            s2 = s2 or in_c.get("line2") or in_c.get("consensus") or in_c.get("outcome") or in_c.get("summaryline2") or in_c.get("summary2")
-        elif isinstance(val, str) and not (s1 and s2):
-            parts = [p.strip() for p in val.split("\n") if p.strip()]
-            if len(parts) >= 2:
-                s1 = s1 or parts[0]
-                s2 = s2 or parts[1]
-            elif len(parts) == 1:
-                sens = [sent.strip() for sent in parts[0].split(". ") if sent.strip()]
-                if len(sens) >= 2:
-                    s1 = s1 or (sens[0] + ".")
-                    s2 = s2 or (sens[1] if sens[1].endswith(".") else sens[1] + ".")
-                else:
-                    s1 = s1 or parts[0]
-
-    return clean_lead(s1 or "Discussion occurred in the thread."), clean_lead(s2 or "Consensus reached without requiring your intervention.")
-
-
-def parse_sloth_result(raw_json: dict) -> SlothDigestResult:
-    """Bulletproof parser that maps any casing and guarantees valid SlothDigestResult."""
-    clean = {}
-    for k, v in raw_json.items():
-        norm_k = re.sub(r"[^a-zA-Z0-9]", "", str(k)).lower()
-        clean[norm_k] = v
-
-    urg = str(clean.get("urgencylevel") or clean.get("urgency") or "GREEN").upper()
-    if "RED" in urg:
-        urgency_level = "RED"
-    elif "YELLOW" in urg:
-        urgency_level = "YELLOW"
-    else:
-        urgency_level = "GREEN"
-
-    default_titles = {
-        "GREEN": "Safe to Hibernate 🦥",
-        "YELLOW": "Skim When Bored 🥱",
-        "RED": "Action Required 🚨",
-    }
-    urgency_title = clean.get("urgencytitle") or clean.get("title") or default_titles[urgency_level]
-
-    urgency_verdict = (
-        clean.get("urgencyverdict")
-        or clean.get("verdict")
-        or clean.get("reason")
-        or "No immediate action required. You can safely conserve your energy."
-    )
-
-    energy_saved = (
-        clean.get("energysaved")
-        or clean.get("timesaved")
-        or "Saved: ~18 mins & 52 calories"
-    )
-
-    s1, s2 = extract_summary(clean, raw_json)
-
-    sloth_take = (
-        clean.get("slothtake")
-        or clean.get("take")
-        or clean.get("wisdom")
-        or clean.get("quote")
-        or "Humans spend remarkable energy debating things that resolve on their own."
-    )
-
-    raw_replies = (
-        clean.get("cannedreplies")
-        or clean.get("replies")
-        or clean.get("cannedreply")
-        or []
-    )
-    parsed_replies = []
-    if isinstance(raw_replies, list):
-        for r in raw_replies:
-            if isinstance(r, dict):
-                r_clean = {re.sub(r"[^a-zA-Z0-9]", "", str(rk)).lower(): rv for rk, rv in r.items()}
-                rtitle = r_clean.get("title") or "Quick Reply"
-                rresp = (
-                    r_clean.get("response")
-                    or r_clean.get("reply")
-                    or r_clean.get("text")
-                    or r_clean.get("message")
-                    or "Sounds good! 👍"
-                )
-                rvibe = r_clean.get("vibe") or r_clean.get("reason") or "Zero effort"
-                parsed_replies.append(
-                    CannedReply(title=str(rtitle), response=str(rresp), vibe=str(rvibe))
-                )
-
-    default_canned = [
-        CannedReply(
-            title="The Minimalist",
-            response="Sounds good! 👍",
-            vibe="Zero-effort acknowledgment",
-        ),
-        CannedReply(
-            title="The Graceful Delayer",
-            response="Reviewing later this afternoon, thanks!",
-            vibe="Polite delay",
-        ),
-        CannedReply(
-            title="The Diplomatic Delegator",
-            response="Thanks for handling this, happy to follow your lead!",
-            vibe="Strategic delegation",
-        ),
-    ]
-    while len(parsed_replies) < 3:
-        parsed_replies.append(default_canned[len(parsed_replies)])
-
-    return SlothDigestResult(
-        urgency_level=urgency_level,
-        urgency_title=str(urgency_title),
-        urgency_verdict=str(urgency_verdict),
-        energy_saved=str(energy_saved),
-        summary_line_1=str(s1),
-        summary_line_2=str(s2),
-        sloth_take=str(sloth_take),
-        canned_replies=parsed_replies[:3],
-    )
-
-
-def execute_sloth_digest(
-    messages_text: str,
-    api_key: Optional[str] = None,
-    provider: str = "Groq",
-    model: str = "openai/gpt-oss-20b",
-    ollama_url: str = "http://localhost:11434/v1",
-) -> Tuple[Optional[SlothDigestResult], Optional[str]]:
-    """Analyzes message dump and returns bulletproof SlothDigestResult."""
-    if not messages_text.strip():
-        return None, "Please provide some chat messages or select a sample preset."
-
-    try:
-        user_prompt = f"Analyze the following unread message thread and output the SlothDigestResult JSON:\n\n{messages_text}"
-
-        if "Groq" in provider:
-            from groq import Groq
-
-            key = api_key or os.getenv("GROQ_API_KEY")
-            if not key or not key.strip():
-                return None, "Groq API Key is missing. Set GROQ_API_KEY in your environment, Streamlit Secrets, or .env file."
-
-            client = Groq(api_key=key.strip())
-            response = client.chat.completions.create(
-                messages=[
-                    {"role": "system", "content": SLOTH_SYSTEM_PROMPT},
-                    {"role": "user", "content": user_prompt},
-                ],
-                model=model,
-                response_format={"type": "json_object"},
-                temperature=0.2,
-            )
-            raw_content = response.choices[0].message.content
-
-        else:
-            import httpx
-
-            payload = {
-                "model": model,
-                "messages": [
-                    {"role": "system", "content": SLOTH_SYSTEM_PROMPT},
-                    {"role": "user", "content": user_prompt},
-                ],
-                "format": "json",
-                "stream": False,
-                "options": {"temperature": 0.2},
-            }
-            target_url = ollama_url.rstrip("/")
-            if not target_url.endswith("/v1"):
-                base_url = f"{target_url}/api/chat"
-                res = httpx.post(base_url, json=payload, timeout=60.0)
-                res.raise_for_status()
-                raw_content = res.json()["message"]["content"]
-            else:
-                base_url = f"{target_url}/chat/completions"
-                res = httpx.post(
-                    base_url,
-                    json={
-                        "model": model,
-                        "messages": [
-                            {"role": "system", "content": SLOTH_SYSTEM_PROMPT},
-                            {"role": "user", "content": user_prompt},
-                        ],
-                        "response_format": {"type": "json_object"},
-                    },
-                    timeout=60.0,
-                )
-                res.raise_for_status()
-                raw_content = res.json()["choices"][0]["message"]["content"]
-
-        cleaned = raw_content.strip()
-        if cleaned.startswith("```json"):
-            cleaned = cleaned[7:]
-        elif cleaned.startswith("```"):
-            cleaned = cleaned[3:]
-        if cleaned.endswith("```"):
-            cleaned = cleaned[:-3]
-        data = json.loads(cleaned.strip())
-        result = parse_sloth_result(data)
-        return result, None
-
-    except json.JSONDecodeError as jde:
-        return None, f"Model generated non-JSON output: {str(jde)}\nRaw response: {raw_content}"
-    except Exception as e:
-        err_msg = str(e)
-        if "401" in err_msg or "invalid_api_key" in err_msg.lower():
-            return None, (
-                "🚨 Invalid Groq API Key (Error 401)\n\n"
-                "The Groq API key is invalid or has expired. "
-                "Please generate a free key at https://console.groq.com/keys and configure GROQ_API_KEY in your environment, Streamlit Secrets, or .env file."
-            )
-        return None, f"Inference error: {err_msg}"
 
 
 @st.cache_data(ttl=300)
@@ -310,40 +66,6 @@ def check_groq_key_status(key: str) -> Tuple[bool, str]:
             return False, "Invalid API key"
         return False, err
 
-
-def get_groq_models(api_key=None):
-    fallback_models = [
-        "openai/gpt-oss-20b",
-        "openai/gpt-oss-120b",
-        "qwen/qwen3.8-27b",
-    ]
-    key = api_key or os.getenv("GROQ_API_KEY")
-    if not key or not key.strip():
-        return fallback_models
-    try:
-        from groq import Groq
-
-        client = Groq(api_key=key.strip())
-        response = client.models.list()
-        active = [
-            m.id
-            for m in response.data
-            if not any(x in m.id.lower() for x in ["whisper", "tts", "guard", "orpheus"])
-        ]
-        priority = [
-            "openai/gpt-oss-20b",
-            "openai/gpt-oss-120b",
-            "qwen/qwen3.8-27b",
-            "llama-3.3-70b-versatile",
-            "llama-3.1-8b-instant",
-        ]
-        ordered = [p for p in priority if p in active]
-        for m in active:
-            if m not in ordered:
-                ordered.append(m)
-        return ordered if ordered else fallback_models
-    except Exception:
-        return fallback_models
 
 
 # Page configuration
@@ -1693,17 +1415,24 @@ if res:
         card_class = "card-red"
         badge_icon = "🔴"
 
+    esc_title = html.escape(res.urgency_title)
+    esc_verdict = html.escape(res.urgency_verdict)
+    esc_energy = html.escape(res.energy_saved)
+    esc_s1 = html.escape(res.summary_line_1)
+    esc_s2 = html.escape(res.summary_line_2)
+    esc_take = html.escape(res.sloth_take)
+
     # 1. Urgency Banner
     render_html(
         f"""
         <div class="traffic-card {card_class}">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <div>
-                    <h3 style="margin: 0; font-size: 1.5rem; font-family: 'Fredoka', cursive;">{badge_icon} {res.urgency_title}</h3>
-                    <p style="margin: 8px 0 0 0; font-size: 1.1rem; line-height: 1.4;">{res.urgency_verdict}</p>
+                    <h3 style="margin: 0; font-size: 1.5rem; font-family: 'Fredoka', cursive;">{badge_icon} {esc_title}</h3>
+                    <p style="margin: 8px 0 0 0; font-size: 1.1rem; line-height: 1.4;">{esc_verdict}</p>
                 </div>
                 <div>
-                    <span class="energy-metric">⚡ {res.energy_saved}</span>
+                    <span class="energy-metric">⚡ {esc_energy}</span>
                 </div>
             </div>
         </div>
@@ -1716,10 +1445,10 @@ if res:
         f"""
         <div class="summary-card">
             <p style="margin: 0 0 16px 0; font-size: 1.15rem; line-height: 1.6;">
-                <span class="fact-tag">THE FACTS</span> {res.summary_line_1}
+                <span class="fact-tag">THE FACTS</span> {esc_s1}
             </p>
             <p style="margin: 0; font-size: 1.15rem; line-height: 1.6;">
-                <span class="outcome-tag">THE CONSENSUS</span> {res.summary_line_2}
+                <span class="outcome-tag">THE CONSENSUS</span> {esc_s2}
             </p>
         </div>
         """
@@ -1729,7 +1458,7 @@ if res:
     render_html(
         f"""
         <div class="sloth-quote">
-            <strong>🍃 Sloan's Reflection:</strong> "{res.sloth_take}"
+            <strong>🍃 Sloan's Reflection:</strong> "{esc_take}"
         </div>
         """
     )
@@ -1741,11 +1470,13 @@ if res:
     cols = st.columns(len(res.canned_replies))
     for idx, (col, reply) in enumerate(zip(cols, res.canned_replies)):
         with col:
+            esc_rtitle = html.escape(reply.title)
+            esc_rvibe = html.escape(reply.vibe)
             render_html(
                 f"""
                 <div class="reply-card">
-                    <h4>{reply.title}</h4>
-                    <p>{reply.vibe}</p>
+                    <h4>{esc_rtitle}</h4>
+                    <p>{esc_rvibe}</p>
                 </div>
                 """
             )
