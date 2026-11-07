@@ -69,7 +69,7 @@ def test_live_groq_if_available():
         messages_text=sample_text,
         api_key=api_key,
         provider="Groq",
-        model="llama-3.1-8b-instant"
+        model="openai/gpt-oss-20b"
     )
     if error:
         print(f"❌ Live test returned error: {error}")
@@ -80,10 +80,23 @@ def test_live_groq_if_available():
         print(f"   Summary L2: {result.summary_line_2}")
 
 
+def test_html_rendering_cleanliness():
+    print("Testing HTML/SVG markdown rendering cleanliness in app.py...")
+    from streamlit.testing.v1 import AppTest
+    app_path = os.path.join(os.path.dirname(__file__), "app.py")
+    at = AppTest.from_file(app_path)
+    at.run()
+    for i, m in enumerate(at.markdown):
+        indented = [l for l in m.value.splitlines() if l.startswith("    ")]
+        assert len(indented) == 0, f"Markdown block {i} contains lines with 4+ spaces of indentation: {indented[:2]}"
+    print("✅ HTML/SVG markdown blocks verified with 0 code-block triggers!")
+
+
 if __name__ == "__main__":
     print("================== SLOTH DIGEST TEST SUITE ==================")
     test_schema_validation()
     test_sample_presets_loaded()
     test_groq_missing_key_graceful_handling()
+    test_html_rendering_cleanliness()
     test_live_groq_if_available()
     print("================== ALL TESTS PASSED! ==================")

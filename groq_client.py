@@ -27,10 +27,11 @@ def _normalize_data(d):
         return d
     normalized = {}
     for k, v in d.items():
-        snake_k = re.sub(r'(?<!^)(?=[A-Z0-9])', '_', k).lower()
-        if snake_k in ["summary_line_1", "summary_line1", "line_1", "line1"]:
+        snake_k = re.sub(r'(?<!^)(?<!_)(?=[A-Z0-9])', '_', k).lower()
+        snake_k = re.sub(r'_+', '_', snake_k)
+        if snake_k in ["summary_line_1", "summary_line1", "summary_line__1", "line_1", "line1"]:
             snake_k = "summary_line_1"
-        elif snake_k in ["summary_line_2", "summary_line2", "line_2", "line2"]:
+        elif snake_k in ["summary_line_2", "summary_line2", "summary_line__2", "line_2", "line2"]:
             snake_k = "summary_line_2"
         elif snake_k in ["canned_replies", "cannedreplies", "replies"]:
             snake_k = "canned_replies"
@@ -62,9 +63,8 @@ def _normalize_data(d):
 def get_groq_models(api_key: Optional[str] = None) -> list:
     """Fetches currently active models from Groq for the given API key."""
     fallback_models = [
-        "llama-3.1-8b-instant",
-        "openai/gpt-oss-120b",
         "openai/gpt-oss-20b",
+        "openai/gpt-oss-120b",
         "qwen/qwen3.8-27b",
     ]
     key = api_key or os.getenv("GROQ_API_KEY")
@@ -79,10 +79,18 @@ def get_groq_models(api_key: Optional[str] = None) -> list:
             m.id for m in response.data
             if not any(x in m.id.lower() for x in ["whisper", "tts", "guard", "orpheus"])
         ]
-        if "llama-3.1-8b-instant" in active:
-            active.remove("llama-3.1-8b-instant")
-            active.insert(0, "llama-3.1-8b-instant")
-        return active if active else fallback_models
+        priority = [
+            "openai/gpt-oss-20b",
+            "openai/gpt-oss-120b",
+            "qwen/qwen3.8-27b",
+            "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant",
+        ]
+        ordered = [p for p in priority if p in active]
+        for m in active:
+            if m not in ordered:
+                ordered.append(m)
+        return ordered if ordered else fallback_models
     except Exception:
         return fallback_models
 
@@ -91,7 +99,7 @@ def run_sloth_digest(
     messages_text: str,
     api_key: Optional[str] = None,
     provider: str = "Groq",
-    model: str = "llama-3.1-8b-instant",
+    model: str = "openai/gpt-oss-20b",
     ollama_url: str = "http://localhost:11434/v1",
 ) -> Tuple[Optional[SlothDigestResult], Optional[str]]:
     """

@@ -25,6 +25,19 @@ from prompts import SLOTH_SYSTEM_PROMPT, SlothDigestResult, CannedReply
 from sample_data import SAMPLE_PRESETS
 
 
+def clean_html(html_str: str) -> str:
+    """Strips all leading and trailing indentation from multiline HTML/SVG strings
+    so that Streamlit's markdown parser never treats lines with 4+ spaces of indentation
+    as code blocks (<pre><code>)."""
+    return "\n".join(line.strip() for line in html_str.strip().splitlines() if line.strip())
+
+
+def render_html(html_str: str) -> None:
+    """Renders multiline HTML/SVG cleanly in Streamlit without triggering markdown code-block behavior."""
+    st.markdown(clean_html(html_str), unsafe_allow_html=True)
+
+
+
 def clean_lead(s: str) -> str:
     """Strips leading numbers, bullets, 'Line 1:', 'The Facts:', etc."""
     if not s:
@@ -76,7 +89,7 @@ def extract_summary(clean: dict, raw_json: dict) -> Tuple[str, str]:
                 s1 = s1 or parts[0]
                 s2 = s2 or parts[1]
             elif len(parts) == 1:
-                sens = [st.strip() for st in parts[0].split(". ") if st.strip()]
+                sens = [sent.strip() for sent in parts[0].split(". ") if sent.strip()]
                 if len(sens) >= 2:
                     s1 = s1 or (sens[0] + ".")
                     s2 = s2 or (sens[1] if sens[1].endswith(".") else sens[1] + ".")
@@ -206,7 +219,7 @@ def execute_sloth_digest(
 
             key = api_key or os.getenv("GROQ_API_KEY")
             if not key or not key.strip():
-                return None, "Groq API Key is missing. Enter your key in the sidebar."
+                return None, "Groq API Key is missing. Set GROQ_API_KEY in your environment, Streamlit Secrets, or .env file."
 
             client = Groq(api_key=key.strip())
             response = client.chat.completions.create(
@@ -275,7 +288,7 @@ def execute_sloth_digest(
             return None, (
                 "🚨 Invalid Groq API Key (Error 401)\n\n"
                 "The Groq API key is invalid or has expired. "
-                "Please generate a free key at https://console.groq.com/keys and enter it in the sidebar or update your Secrets."
+                "Please generate a free key at https://console.groq.com/keys and configure GROQ_API_KEY in your environment, Streamlit Secrets, or .env file."
             )
         return None, f"Inference error: {err_msg}"
 
@@ -1478,7 +1491,7 @@ else:
     </style>
     """
 
-st.markdown(theme_css, unsafe_allow_html=True)
+render_html(theme_css)
 
 # Theme Toggle Switcher (Pinned to top-right corner via CSS)
 theme_selection = st.segmented_control(
@@ -1503,111 +1516,111 @@ ollama_url = ""
 # Main Application Area Header with Animated Moving Sloth
 SLOTH_HERO_HTML = """
 <div class="sloth-hero-card">
-    <div class="sloth-anim-container" title="Shhh... Sloan is conserving energy! 🦥 (Hover to say hi)">
-        <div class="sloth-speech-bubble">Zzz... why rush? Let AI digest it 🍃</div>
-        <svg viewBox="0 0 250 170" width="100%" height="100%" style="overflow: visible;">
-            <!-- Tree Branch (Static across top) -->
-            <path d="M 0,32 Q 60,38 125,32 Q 190,26 250,30" stroke="#784c28" stroke-width="13" stroke-linecap="round" fill="none"/>
-            <path d="M 3,30 Q 60,35 125,29 Q 190,24 247,28" stroke="#925e34" stroke-width="4" stroke-linecap="round" fill="none"/>
-            
-            <!-- Lush Jungle Leaves -->
-            <g class="anim-leaf-1">
-                <path d="M 22,30 C 5,15 10,-5 32,8 C 30,20 26,27 22,30 Z" fill="#10b981"/>
-                <path d="M 25,26 Q 20,10 20,-2" stroke="#047857" stroke-width="1.5" fill="none"/>
-                <path d="M 35,32 C 45,15 65,12 55,30 Z" fill="#059669"/>
-            </g>
-            <g class="anim-leaf-2">
-                <path d="M 215,26 C 235,10 250,18 240,36 C 228,34 220,30 215,26 Z" fill="#10b981"/>
-                <path d="M 220,28 Q 235,20 246,18" stroke="#047857" stroke-width="1.5" fill="none"/>
-            </g>
+<div class="sloth-anim-container" title="Shhh... Sloan is conserving energy! 🦥 (Hover to say hi)">
+<div class="sloth-speech-bubble">Zzz... why rush? Let AI digest it 🍃</div>
+<svg viewBox="0 0 250 170" width="100%" height="100%" style="overflow: visible;">
+<!-- Tree Branch (Static across top) -->
+<path d="M 0,32 Q 60,38 125,32 Q 190,26 250,30" stroke="#784c28" stroke-width="13" stroke-linecap="round" fill="none"/>
+<path d="M 3,30 Q 60,35 125,29 Q 190,24 247,28" stroke="#925e34" stroke-width="4" stroke-linecap="round" fill="none"/>
 
-            <!-- Crawling & Swinging Sloth Assembly -->
-            <g class="anim-branch-mover">
-                <g class="anim-sloth-swinger">
-                    
-                    <!-- Back Claws gripping the branch -->
-                    <g fill="#e2e8f0" stroke="#94a3b8" stroke-width="1">
-                        <!-- Front Paw Claws (Right side as hanging) -->
-                        <path d="M 148,22 C 148,16 153,16 153,23 L 153,30 C 153,30 148,30 148,22 Z" />
-                        <path d="M 154,20 C 154,14 159,14 159,22 L 159,30 C 159,30 154,30 154,20 Z" />
-                        <path d="M 160,22 C 160,16 165,16 165,24 L 165,30 C 165,30 160,30 160,22 Z" />
+<!-- Lush Jungle Leaves -->
+<g class="anim-leaf-1">
+<path d="M 22,30 C 5,15 10,-5 32,8 C 30,20 26,27 22,30 Z" fill="#10b981"/>
+<path d="M 25,26 Q 20,10 20,-2" stroke="#047857" stroke-width="1.5" fill="none"/>
+<path d="M 35,32 C 45,15 65,12 55,30 Z" fill="#059669"/>
+</g>
+<g class="anim-leaf-2">
+<path d="M 215,26 C 235,10 250,18 240,36 C 228,34 220,30 215,26 Z" fill="#10b981"/>
+<path d="M 220,28 Q 235,20 246,18" stroke="#047857" stroke-width="1.5" fill="none"/>
+</g>
 
-                        <!-- Back Paw Claws (Left side as hanging) -->
-                        <path d="M 85,22 C 85,16 90,16 90,23 L 90,30 C 90,30 85,30 85,22 Z" />
-                        <path d="M 91,20 C 91,14 96,14 96,22 L 96,30 C 96,30 91,30 91,20 Z" />
-                        <path d="M 97,22 C 97,16 102,16 102,24 L 102,30 C 102,30 97,30 97,22 Z" />
-                    </g>
+<!-- Crawling & Swinging Sloth Assembly -->
+<g class="anim-branch-mover">
+<g class="anim-sloth-swinger">
 
-                    <!-- Front Arm & Back Leg (Reaching up to branch) -->
-                    <path d="M 125,70 Q 155,60 155,27" stroke="#8c6a51" stroke-width="18" stroke-linecap="round" fill="none"/>
-                    <path d="M 100,72 Q 88,58 92,27" stroke="#8c6a51" stroke-width="18" stroke-linecap="round" fill="none"/>
+<!-- Back Claws gripping the branch -->
+<g fill="#e2e8f0" stroke="#94a3b8" stroke-width="1">
+<!-- Front Paw Claws (Right side as hanging) -->
+<path d="M 148,22 C 148,16 153,16 153,23 L 153,30 C 153,30 148,30 148,22 Z" />
+<path d="M 154,20 C 154,14 159,14 159,22 L 159,30 C 159,30 154,30 154,20 Z" />
+<path d="M 160,22 C 160,16 165,16 165,24 L 165,30 C 165,30 160,30 160,22 Z" />
 
-                    <!-- Sloth Body (Plump & Cozy) -->
-                    <g class="anim-sloth-body">
-                        <!-- Main Torso -->
-                        <ellipse cx="120" cy="85" rx="38" ry="32" fill="#8c6a51"/>
-                        <!-- Fluffy Light Belly -->
-                        <ellipse cx="122" cy="86" rx="26" ry="22" fill="#d8bc9d"/>
+<!-- Back Paw Claws (Left side as hanging) -->
+<path d="M 85,22 C 85,16 90,16 90,23 L 90,30 C 90,30 85,30 85,22 Z" />
+<path d="M 91,20 C 91,14 96,14 96,22 L 96,30 C 96,30 91,30 91,20 Z" />
+<path d="M 97,22 C 97,16 102,16 102,24 L 102,30 C 102,30 97,30 97,22 Z" />
+</g>
 
-                        <!-- Sloth Head (Tucked affectionately forward) -->
-                        <g transform="translate(142, 85)">
-                            <!-- Head Base -->
-                            <circle cx="0" cy="0" r="23" fill="#8c6a51"/>
-                            <!-- Light Face Mask -->
-                            <ellipse cx="2" cy="1" rx="18" ry="16" fill="#f5ede0"/>
+<!-- Front Arm & Back Leg (Reaching up to branch) -->
+<path d="M 125,70 Q 155,60 155,27" stroke="#8c6a51" stroke-width="18" stroke-linecap="round" fill="none"/>
+<path d="M 100,72 Q 88,58 92,27" stroke="#8c6a51" stroke-width="18" stroke-linecap="round" fill="none"/>
 
-                            <!-- Eye Stripes (Classic Sloth Signature Mask) -->
-                            <path d="M -8,-6 Q 0,-2 7,-8 Q 11,-4 8,0 Q -1,5 -9,0 Z" fill="#543622" opacity="0.9"/>
-                            <path d="M 5,-7 Q 13,-2 20,-6 Q 22,-2 19,2 Q 12,6 4,1 Z" fill="#543622" opacity="0.9"/>
+<!-- Sloth Body (Plump & Cozy) -->
+<g class="anim-sloth-body">
+<!-- Main Torso -->
+<ellipse cx="120" cy="85" rx="38" ry="32" fill="#8c6a51"/>
+<!-- Fluffy Light Belly -->
+<ellipse cx="122" cy="86" rx="26" ry="22" fill="#d8bc9d"/>
 
-                            <!-- Sweet Sleeping / Blinking Eyes -->
-                            <g class="anim-sloth-eyes">
-                                <path d="M -3,-1 Q 0,3 4,-1" stroke="#231409" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-                                <path d="M 10,-1 Q 13,3 17,-1" stroke="#231409" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-                            </g>
+<!-- Sloth Head (Tucked affectionately forward) -->
+<g transform="translate(142, 85)">
+<!-- Head Base -->
+<circle cx="0" cy="0" r="23" fill="#8c6a51"/>
+<!-- Light Face Mask -->
+<ellipse cx="2" cy="1" rx="18" ry="16" fill="#f5ede0"/>
 
-                            <!-- Cute Button Nose -->
-                            <ellipse cx="7" cy="5" rx="3.5" ry="2.5" fill="#231409"/>
-                            <circle cx="6" cy="4.2" r="0.8" fill="#ffffff" opacity="0.7"/>
+<!-- Eye Stripes (Classic Sloth Signature Mask) -->
+<path d="M -8,-6 Q 0,-2 7,-8 Q 11,-4 8,0 Q -1,5 -9,0 Z" fill="#543622" opacity="0.9"/>
+<path d="M 5,-7 Q 13,-2 20,-6 Q 22,-2 19,2 Q 12,6 4,1 Z" fill="#543622" opacity="0.9"/>
 
-                            <!-- Gentle Smile -->
-                            <path d="M 4,9 Q 7,13 11,9" stroke="#231409" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+<!-- Sweet Sleeping / Blinking Eyes -->
+<g class="anim-sloth-eyes">
+<path d="M -3,-1 Q 0,3 4,-1" stroke="#231409" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+<path d="M 10,-1 Q 13,3 17,-1" stroke="#231409" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+</g>
 
-                            <!-- Rosy Cheeks -->
-                            <circle cx="-2" cy="5" r="3.2" fill="#f43f5e" opacity="0.3"/>
-                            <circle cx="16" cy="5" r="3.2" fill="#f43f5e" opacity="0.3"/>
+<!-- Cute Button Nose -->
+<ellipse cx="7" cy="5" rx="3.5" ry="2.5" fill="#231409"/>
+<circle cx="6" cy="4.2" r="0.8" fill="#ffffff" opacity="0.7"/>
 
-                            <!-- Tiny Round Ears -->
-                            <circle cx="-18" cy="-5" r="4.5" fill="#71523c"/>
-                            <circle cx="-18" cy="-5" r="2.5" fill="#d8bc9d"/>
-                        </g>
+<!-- Gentle Smile -->
+<path d="M 4,9 Q 7,13 11,9" stroke="#231409" stroke-width="1.8" stroke-linecap="round" fill="none"/>
 
-                        <!-- Little Fluffy Tail -->
-                        <ellipse cx="80" cy="88" rx="6" ry="5" fill="#71523c"/>
-                    </g>
+<!-- Rosy Cheeks -->
+<circle cx="-2" cy="5" r="3.2" fill="#f43f5e" opacity="0.3"/>
+<circle cx="16" cy="5" r="3.2" fill="#f43f5e" opacity="0.3"/>
 
-                    <!-- Sleeping ZZZ Bubbles -->
-                    <text x="170" y="70" class="zzz-1" fill="#10b981" font-size="14">z</text>
-                    <text x="175" y="65" class="zzz-2" fill="#38bdf8" font-size="18">Z</text>
-                    <text x="182" y="60" class="zzz-3" fill="#f59e0b" font-size="22">Z</text>
+<!-- Tiny Round Ears -->
+<circle cx="-18" cy="-5" r="4.5" fill="#71523c"/>
+<circle cx="-18" cy="-5" r="2.5" fill="#d8bc9d"/>
+</g>
 
-                </g>
-            </g>
-        </svg>
-    </div>
+<!-- Little Fluffy Tail -->
+<ellipse cx="80" cy="88" rx="6" ry="5" fill="#71523c"/>
+</g>
 
-    <div class="sloth-hero-content">
-        <div class="sloth-header">🦥 SlothDigest</div>
-        <div class="sloth-subtitle">Channel your inner sloth. Let open-weight AI digest noisy group chats into a 2-line summary and 1-click canned replies.</div>
-        <div class="sloth-badges">
-            <span class="sloth-badge mascot-badge"><span class="status-dot-pulse"></span> Sloan the Sloth • Conserving Energy</span>
-            <span class="sloth-badge speed-badge">⚡ Instant Groq LPU</span>
-            <span class="sloth-badge privacy-badge">🔒 100% Private</span>
-        </div>
-    </div>
+<!-- Sleeping ZZZ Bubbles -->
+<text x="170" y="70" class="zzz-1" fill="#10b981" font-size="14">z</text>
+<text x="175" y="65" class="zzz-2" fill="#38bdf8" font-size="18">Z</text>
+<text x="182" y="60" class="zzz-3" fill="#f59e0b" font-size="22">Z</text>
+
+</g>
+</g>
+</svg>
+</div>
+
+<div class="sloth-hero-content">
+<div class="sloth-header">🦥 SlothDigest</div>
+<div class="sloth-subtitle">Channel your inner sloth. Let open-weight AI digest noisy group chats into a 2-line summary and 1-click canned replies.</div>
+<div class="sloth-badges">
+<span class="sloth-badge mascot-badge"><span class="status-dot-pulse"></span> Sloan the Sloth • Conserving Energy</span>
+<span class="sloth-badge speed-badge">⚡ Instant Groq LPU</span>
+<span class="sloth-badge privacy-badge">🔒 100% Private</span>
+</div>
+</div>
 </div>
 """
-st.markdown(SLOTH_HERO_HTML, unsafe_allow_html=True)
+render_html(SLOTH_HERO_HTML)
 
 # Preset Quick-Load Buttons with polished styling
 st.markdown("**⚡ Too lazy to type? Test with 1-click scenario presets:**")
@@ -1681,7 +1694,7 @@ if res:
         badge_icon = "🔴"
 
     # 1. Urgency Banner
-    st.markdown(
+    render_html(
         f"""
         <div class="traffic-card {card_class}">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
@@ -1694,13 +1707,12 @@ if res:
                 </div>
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
     # 2. The 2-Line Sleepy Summary
     st.markdown("### 📋 The 2-Line Sleepy Summary")
-    st.markdown(
+    render_html(
         f"""
         <div class="summary-card">
             <p style="margin: 0 0 16px 0; font-size: 1.15rem; line-height: 1.6;">
@@ -1710,18 +1722,16 @@ if res:
                 <span class="outcome-tag">THE CONSENSUS</span> {res.summary_line_2}
             </p>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
     # 3. Sloth Quote / Wisdom
-    st.markdown(
+    render_html(
         f"""
         <div class="sloth-quote">
             <strong>🍃 Sloan's Reflection:</strong> "{res.sloth_take}"
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
     # 4. 1-Click Lazy Canned Replies
@@ -1731,23 +1741,20 @@ if res:
     cols = st.columns(len(res.canned_replies))
     for idx, (col, reply) in enumerate(zip(cols, res.canned_replies)):
         with col:
-            st.markdown(
+            render_html(
                 f"""
                 <div class="reply-card">
                     <h4>{reply.title}</h4>
                     <p>{reply.vibe}</p>
                 </div>
-                """,
-                unsafe_allow_html=True,
+                """
             )
             st.code(reply.response, language=None)
 
 st.divider()
 with st.expander("🌱 Why Open Weights Matter"):
     st.markdown(
-        """
-        - **Privacy First**: Group chats and work messages contain sensitive private chats. Open-weight models guarantee your data isn't harvested for proprietary AI training.
-        - **Zero Cost Forever**: Runs entirely on Groq's generous free tier or free local hardware.
-        - **Portability**: Switching from cloud to 100% offline air-gapped local inference requires 0 code changes.
-        """
+        "- **Privacy First**: Group chats and work messages contain sensitive private chats. Open-weight models guarantee your data isn't harvested for proprietary AI training.\n"
+        "- **Zero Cost Forever**: Runs entirely on Groq's generous free tier or free local hardware.\n"
+        "- **Portability**: Switching from cloud to 100% offline air-gapped local inference requires 0 code changes."
     )

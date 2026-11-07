@@ -40,3 +40,7 @@ ENV/
 
 # Streamlit
 .streamlit/
+
+# Agent metadata
+.agents/
+
